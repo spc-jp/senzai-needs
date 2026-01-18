@@ -1,0 +1,1494 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>潜在ニーズレーダー（デモ盤）</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <meta name="color-scheme" content="light dark" />
+  <style>
+    /* SPCカラー定義 */
+    :root { 
+      --c-main: #020562; /* 濃紺 */
+      --c-sub: #22AEC9;  /* 水色 */
+      --c-accent: #FEFEFE; /* 白 */
+    }
+
+    /* メインヘッダー用：SPCカラーを活かしたリッチなグラデーション */
+    .bg-brand-header {
+      background-color: var(--c-main);
+      background-image: 
+        radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--c-sub) 50%, transparent) 0%, transparent 40%),
+        linear-gradient(135deg, var(--c-main) 0%, color-mix(in srgb, var(--c-main) 60%, black) 100%);
+      color: var(--c-accent);
+    }
+
+    /* その他UIパーツ用 */
+    .ring-brand:focus { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-sub) 35%, transparent); }
+    
+    .btn-brand { 
+      background: var(--c-main); 
+      color: var(--c-accent);
+    }
+    .btn-brand:hover { filter: brightness(1.2); }
+    
+    .btn-sub { 
+      background: var(--c-sub); 
+      color: var(--c-accent);
+    }
+    .btn-sub:hover { filter: brightness(1.1); }
+
+    /* チップ（バッジ） */
+    .chip-brand { 
+      border-color: color-mix(in srgb, var(--c-main) 30%, transparent); 
+      background: color-mix(in srgb, var(--c-main) 5%, transparent); 
+      color: var(--c-main);
+    }
+    /* ヘッダー内のチップ（白ベース） */
+    .chip-on-dark {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: var(--c-accent);
+      backdrop-filter: blur(4px);
+    }
+
+    /* ヘッダー内のボタン */
+    .btn-on-dark {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--c-accent);
+      backdrop-filter: blur(4px);
+    }
+    .btn-on-dark:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .border-soft { border-color: color-mix(in srgb, #000 10%, transparent); }
+    .toast { transform: translateY(12px) translateX(-50%); opacity: 0; transition: .2s ease; }
+    .toast.show { transform: translateY(0) translateX(-50%); opacity: 1; }
+    @media (prefers-reduced-motion: reduce) {
+      .toast { transition: none; }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+  <div class="mx-auto max-w-3xl px-4 pb-28">
+    <!-- Header: SPCカラーを強調 -->
+    <header class="mt-4 rounded-3xl border border-white/10 bg-brand-header p-6 shadow-lg">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="min-w-0">
+          <div class="inline-flex flex-wrap items-center gap-2 rounded-full chip-on-dark px-3 py-1 text-xs">
+            <span class="font-medium">デモ盤</span>
+            <span class="opacity-60">/</span>
+            <span>潜在ニーズ直球</span>
+            <span class="opacity-60">/</span>
+            <span id="badgeIndustry" class="truncate">業種：製造業</span>
+          </div>
+          <h1 class="mt-3 text-2xl font-bold tracking-tight text-white drop-shadow-md">潜在ニーズレーダー</h1>
+          <p class="mt-2 text-sm leading-relaxed text-white/90">
+            まだ言葉になっていない困りごとを、整理して出力
+          </p>
+        </div>
+
+        <div class="flex shrink-0 items-center gap-2 self-end sm:self-auto">
+           <button id="btnGuide" class="btn-on-dark inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-medium shadow-sm transition-colors">
+            <i class="ph ph-book-open-text mr-1.5 text-lg"></i>使い方
+          </button>
+          <button id="btnSettings" class="btn-on-dark inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-medium shadow-sm transition-colors" aria-haspopup="dialog">
+            <i class="ph ph-gear-six mr-1.5 text-lg"></i>設定
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="mt-5 space-y-4">
+      <section class="rounded-3xl border border-soft bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div class="flex-1">
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-sm font-medium text-zinc-800 dark:text-zinc-200">今日のテーマ</label>
+              
+              <!-- Theme Templates Dropdown -->
+              <div class="relative group">
+                <select id="selThemeTemplate" class="appearance-none cursor-pointer rounded-lg border border-soft bg-zinc-50 py-1.5 pl-3 pr-8 text-xs font-medium text-zinc-600 shadow-sm focus:border-[var(--c-main)] focus:ring-1 focus:ring-[var(--c-main)] dark:border-zinc-800 dark:bg-zinc-800 dark:text-zinc-400">
+                  <option value="">✨ ヒント：よくあるテーマから選ぶ</option>
+                  <option value="まだ言葉になっていない困りごとを見つけたい">📌 まだ言葉になっていない困りごとを見つけたい</option>
+                  <option value="現場の「忙しい」を具体的に分解して楽にしたい">🏃 現場の「忙しい」を具体的に分解して楽にしたい</option>
+                  <option value="属人化している業務を洗い出して標準化したい">🔑 属人化している業務を洗い出して標準化したい</option>
+                  <option value="新人が育つ仕組みを作って、定着率を上げたい">🌱 新人が育つ仕組みを作って、定着率を上げたい</option>
+                  <option value="会議やチャットの連絡ロス・手戻りを減らしたい">💬 会議やチャットの連絡ロス・手戻りを減らしたい</option>
+                  <option value="ITツールを入れたが定着しない原因を知りたい">💻 ITツールを入れたが定着しない原因を知りたい</option>
+                  <option value="将来への漠然とした不安を整理してスッキリしたい">☁️ 将来への漠然とした不安を整理してスッキリしたい</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-zinc-500">
+                  <i class="ph ph-caret-down text-xs"></i>
+                </div>
+              </div>
+            </div>
+
+            <input id="inpTheme" class="ring-brand mt-1 w-full rounded-2xl border border-soft bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
+              placeholder="ここに入力するか、上のヒントから選べます" />
+            <p class="mt-2 text-xs text-zinc-600 dark:text-zinc-400">
+              選んだあとに自由に変えられます。ふわっとしたままでOKです😊
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="rounded-3xl border border-soft bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h2 class="text-base font-semibold">最近の状態チェック</h2>
+            <p class="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
+              選ぶだけでOK。最大10個まで（いま <span id="countSel" class="font-bold text-[var(--c-sub)]">0</span>/10）。
+            </p>
+          </div>
+          <div class="hidden sm:flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400">
+            <span class="inline-flex items-center gap-1 rounded-full border border-soft bg-zinc-50 px-3 py-1 dark:bg-zinc-800">業種連動</span>
+            <span class="inline-flex items-center gap-1 rounded-full border border-soft bg-zinc-50 px-3 py-1 dark:bg-zinc-800">選択式</span>
+          </div>
+        </div>
+
+        <div id="listChecks" class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2"></div>
+
+        <div class="mt-4">
+          <label class="text-sm font-medium text-zinc-800 dark:text-zinc-200">追加メモ（任意）</label>
+          <textarea id="inpMemo" rows="3" class="ring-brand mt-2 w-full rounded-2xl border border-soft bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
+            placeholder="例：社内で同じ説明が何度も起きている。会議が長いのに決まらない。"></textarea>
+        </div>
+
+        <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <button id="btnGenerate" class="btn-brand ring-brand inline-flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-4 text-sm font-bold shadow-lg transition-transform active:scale-95 sm:w-auto">
+            <i class="ph ph-compass text-xl"></i>
+            まとめて出力する
+          </button>
+          <div class="flex items-center justify-between gap-3 text-xs text-zinc-600 dark:text-zinc-400">
+            <span id="genStatus" class="opacity-80">選んだ内容から、原因と一歩を仮で組み立てます</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="outSection" class="rounded-3xl border border-soft bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h2 class="text-base font-semibold">出力</h2>
+            <p class="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
+              そのままNotebookLMへ貼れます。GPT/Gemini用プロンプトもセットです。
+            </p>
+          </div>
+          <div class="flex gap-2">
+            <button id="btnSaveNote" class="ring-brand inline-flex items-center justify-center rounded-2xl border border-soft bg-white px-3 py-2 text-xs shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900">
+              <i class="ph ph-floppy-disk mr-1"></i>保存
+            </button>
+            <button id="btnCopyAll" class="ring-brand inline-flex items-center justify-center rounded-2xl border border-soft bg-white px-3 py-2 text-xs shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900">
+              <i class="ph ph-copy mr-1"></i>全部コピー
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-4 flex flex-wrap gap-2">
+          <button class="tabBtn ring-brand rounded-full border border-soft bg-white px-4 py-2 text-xs transition-colors hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-700" data-tab="nb">NotebookLM用ソース</button>
+          <button class="tabBtn ring-brand rounded-full border border-soft bg-white px-4 py-2 text-xs transition-colors hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-700" data-tab="slides">スライド構成（10枚）</button>
+          <button class="tabBtn ring-brand rounded-full border border-soft bg-white px-4 py-2 text-xs transition-colors hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-700" data-tab="info">インフォグラ構造</button>
+          <button class="tabBtn ring-brand rounded-full border border-soft bg-white px-4 py-2 text-xs transition-colors hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-700" data-tab="gpt">GPT用プロンプト</button>
+          <button class="tabBtn ring-brand rounded-full border border-soft bg-white px-4 py-2 text-xs transition-colors hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-700" data-tab="gemini">Gemini用プロンプト</button>
+        </div>
+
+        <div class="mt-4">
+          <div class="flex items-center justify-between gap-2">
+            <div class="text-xs text-zinc-600 dark:text-zinc-400">
+              <span id="tabLabel">NotebookLM用ソース</span>
+            </div>
+            <button id="btnCopyTab" class="ring-brand inline-flex items-center justify-center rounded-2xl border border-soft bg-white px-3 py-2 text-xs shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900">
+              <i class="ph ph-copy mr-1"></i>このタブをコピー
+            </button>
+          </div>
+          <textarea id="outText" class="ring-brand mt-2 h-72 w-full rounded-2xl border border-soft bg-zinc-50 px-4 py-3 font-mono text-[12px] leading-relaxed text-zinc-900 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 focus:ring-2 focus:ring-[var(--c-main)]" spellcheck="false"></textarea>
+        </div>
+      </section>
+
+      <section class="rounded-3xl border border-soft bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <h3 class="text-sm font-semibold">このデモは、気づきの入口です</h3>
+        <p class="mt-2 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
+          本当に価値が出るのは、御社の言葉に置き換えたとき。<br class="hidden sm:block" />
+          「この出力をベースに、自社専用版を一緒に作りたい」そんな相談から始められます😊
+        </p>
+        <button id="btnConsult" class="btn-sub ring-brand mt-4 inline-flex w-full items-center justify-center rounded-2xl px-6 py-4 text-sm font-bold shadow-lg transition-transform active:scale-95 sm:w-auto">
+          <i class="ph ph-chat-circle-text mr-2 text-lg"></i>自社専用版の相談をする
+        </button>
+      </section>
+
+      <p class="pb-6 text-center text-[11px] text-zinc-500 dark:text-zinc-500">
+        潜在ニーズレーダー（デモ盤）｜保存はこの端末のブラウザ（localStorage）にのみ行われます
+      </p>
+    </main>
+  </div>
+
+  <!-- Guide Modal -->
+  <div id="modalGuide" class="fixed inset-0 z-40 hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"></div>
+    <div class="absolute inset-x-0 bottom-0 mx-auto w-full max-w-lg rounded-t-3xl border border-soft bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 sm:bottom-auto sm:top-20 sm:rounded-3xl">
+        <div class="flex items-center justify-between gap-3 mb-4">
+            <h3 class="text-xl font-bold flex items-center gap-2">
+                <i class="ph ph-book-open-text text-[var(--c-main)]"></i>
+                使い方ガイド
+            </h3>
+            <button id="btnCloseGuide" class="ring-brand rounded-full bg-zinc-100 p-2 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
+                <i class="ph ph-x text-lg"></i>
+            </button>
+        </div>
+
+        <div class="space-y-6">
+            <div>
+                <h4 class="text-sm font-bold opacity-90">潜在ニーズを「的（マト）」に変える</h4>
+                <p class="mt-2 text-sm leading-relaxed opacity-80">
+                    「何が課題かわからない」という違和感こそが、実は最大のヒントです。<br>
+                    このアプリは、現場のモヤモヤを言語化し、AI/DX活用の焦点を絞り込みます。
+                </p>
+            </div>
+            
+            <div>
+                <h4 class="text-sm font-bold opacity-90">気づきの4ステップ</h4>
+                <ul class="mt-3 space-y-4">
+                    <li class="flex gap-3">
+                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--c-main)] text-xs font-bold text-white">1</span>
+                        <div class="text-xs leading-relaxed opacity-80 pt-0.5">
+                            <span class="font-bold">違和感を置く</span><br>
+                            「忙しい」「なんとなく不安」など、まだ言葉にならない感覚をそのまま入力してください。
+                        </div>
+                    </li>
+                    <li class="flex gap-3">
+                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--c-main)] text-xs font-bold text-white">2</span>
+                        <div class="text-xs leading-relaxed opacity-80 pt-0.5">
+                            <span class="font-bold">兆候を選ぶ</span><br>
+                            「現場あるある」から選ぶことで、見えていない課題の輪郭（ボトルネック）が浮かび上がります。
+                        </div>
+                    </li>
+                    <li class="flex gap-3">
+                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--c-main)] text-xs font-bold text-white">3</span>
+                        <div class="text-xs leading-relaxed opacity-80 pt-0.5">
+                            <span class="font-bold">構造化する</span><br>
+                            ボタン一つで、AIがあなたの入力を分析し、「真の課題」と「解決への道筋」を構造化して出力します。
+                        </div>
+                    </li>
+                    <li class="flex gap-3">
+                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--c-main)] text-xs font-bold text-white">4</span>
+                        <div class="text-xs leading-relaxed opacity-80 pt-0.5">
+                            <span class="font-bold">次の一歩へ</span><br>
+                            出力された共通言語をたたき台に、具体的な解決策（自社専用版）を相談できます。
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="modalSettings" class="fixed inset-0 z-40 hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"></div>
+    <div class="absolute inset-x-0 bottom-0 mx-auto w-full max-w-3xl rounded-t-3xl border border-soft bg-white p-5 shadow-xl dark:border-zinc-800 dark:bg-zinc-900 sm:bottom-auto sm:top-10 sm:rounded-3xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <h3 class="text-base font-semibold">設定</h3>
+        </div>
+        <button id="btnCloseSettings" class="ring-brand rounded-2xl border border-soft bg-white px-3 py-2 text-sm shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900">閉じる</button>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <!-- Theme Settings -->
+        <div class="rounded-2xl border border-soft p-4 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50">
+            <label class="text-sm font-medium">外観モード</label>
+            <div class="mt-2 flex gap-2">
+                <button id="btnThemeLight" class="flex-1 rounded-xl border border-soft bg-white py-2 text-xs font-medium shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900 transition-colors">
+                    ☀️ ライト
+                </button>
+                <button id="btnThemeDark" class="flex-1 rounded-xl border border-soft bg-white py-2 text-xs font-medium shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900 transition-colors">
+                    🌙 ダーク
+                </button>
+                <button id="btnThemeOS" class="flex-1 rounded-xl border border-soft bg-white py-2 text-xs font-medium shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900 transition-colors">
+                    🖥️ 自動
+                </button>
+            </div>
+        </div>
+
+        <div></div> <!-- Spacer for grid layout if needed, or remove -->
+
+        <div class="rounded-2xl border border-soft p-4 dark:border-zinc-800">
+          <label class="text-sm font-medium">業種（必須）</label>
+          <select id="selIndustry" class="ring-brand mt-2 w-full rounded-2xl border border-soft bg-white px-3 py-3 text-sm shadow-sm dark:border-zinc-800 dark:bg-zinc-950 focus:ring-2 focus:ring-[var(--c-main)]">
+            <option selected>製造業</option>
+            <option>建設・工務店</option>
+            <option>飲食</option>
+            <option>美容・サロン</option>
+            <option>小売・サービス</option>
+            <option>医療・薬局・介護</option>
+            <option>士業</option>
+            <option>IT・Web制作</option>
+            <option>不動産</option>
+            <option>その他</option>
+          </select>
+
+          <div class="mt-3">
+            <label class="text-sm font-medium">出力トーン</label>
+            <div class="mt-2 flex flex-wrap gap-2">
+              <button class="toneBtn ring-brand rounded-full border border-soft bg-white px-4 py-2 text-xs transition-colors hover:bg-zinc-50" data-tone="やさしい">やさしい</button>
+              <button class="toneBtn ring-brand rounded-full border border-soft bg-white px-4 py-2 text-xs transition-colors hover:bg-zinc-50" data-tone="ビジネス">ビジネス</button>
+              <button class="toneBtn ring-brand rounded-full border border-soft bg-white px-4 py-2 text-xs transition-colors hover:bg-zinc-50" data-tone="熱量">熱量</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-soft p-4 dark:border-zinc-800">
+          <label class="text-sm font-medium">配色3色（任意）</label>
+          <p class="mt-1 text-xs text-zinc-600 dark:text-zinc-400">メイン/サブ/アクセントを変えると、UIとプロンプトに反映されます。</p>
+
+          <div class="mt-3 grid grid-cols-1 gap-3">
+            <div class="flex items-center justify-between gap-3">
+              <div class="min-w-0">
+                <div class="text-xs text-zinc-600 dark:text-zinc-400">メイン</div>
+                <input id="hexMain" class="ring-brand mt-1 w-full rounded-2xl border border-soft bg-white px-3 py-2 text-sm shadow-sm dark:border-zinc-800 dark:bg-zinc-950" value="#020562" />
+              </div>
+              <input id="pickMain" type="color" class="h-10 w-12 rounded-xl border border-soft bg-white p-1 dark:border-zinc-800 dark:bg-zinc-950" value="#020562" />
+            </div>
+
+            <div class="flex items-center justify-between gap-3">
+              <div class="min-w-0">
+                <div class="text-xs text-zinc-600 dark:text-zinc-400">サブ</div>
+                <input id="hexSub" class="ring-brand mt-1 w-full rounded-2xl border border-soft bg-white px-3 py-2 text-sm shadow-sm dark:border-zinc-800 dark:bg-zinc-950" value="#22AEC9" />
+              </div>
+              <input id="pickSub" type="color" class="h-10 w-12 rounded-xl border border-soft bg-white p-1 dark:border-zinc-800 dark:bg-zinc-950" value="#22AEC9" />
+            </div>
+
+            <div class="flex items-center justify-between gap-3">
+              <div class="min-w-0">
+                <div class="text-xs text-zinc-600 dark:text-zinc-400">アクセント</div>
+                <input id="hexAccent" class="ring-brand mt-1 w-full rounded-2xl border border-soft bg-white px-3 py-2 text-sm shadow-sm dark:border-zinc-800 dark:bg-zinc-950" value="#FEFEFE" />
+              </div>
+              <input id="pickAccent" type="color" class="h-10 w-12 rounded-xl border border-soft bg-white p-1 dark:border-zinc-800 dark:bg-zinc-950" value="#FEFEFE" />
+            </div>
+          </div>
+
+          <div class="mt-4 flex items-center gap-2">
+            <button id="btnResetColors" class="ring-brand rounded-2xl border border-soft bg-white px-3 py-2 text-xs shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900">
+              デフォルトに戻す
+            </button>
+          </div>
+        </div>
+        
+        <!-- Data Actions -->
+        <div class="sm:col-span-2 border-t border-soft pt-5 dark:border-zinc-800">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <span class="text-sm font-medium">データ操作</span>
+                    <p class="text-xs text-zinc-600 dark:text-zinc-400">入力リセット / テストデータ投入</p>
+                </div>
+                <div class="flex gap-2">
+                    <button id="btnDemo" class="ring-brand inline-flex items-center justify-center rounded-xl border border-soft bg-white px-4 py-2 text-sm shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900">
+                        デモデータ
+                    </button>
+                    <button id="btnClear" class="ring-brand inline-flex items-center justify-center rounded-xl border border-soft bg-white px-4 py-2 text-sm shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900">
+                        クリア
+                    </button>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div id="modalConfirm" class="fixed inset-0 z-[70] hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"></div>
+    <div class="absolute inset-x-0 bottom-0 mx-auto w-full max-w-sm rounded-t-3xl border border-soft bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 sm:rounded-3xl">
+        <div class="text-center">
+            <div id="confirmIcon" class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100 text-2xl dark:bg-zinc-800">
+                ⚠️
+            </div>
+            <h3 id="confirmTitle" class="text-lg font-bold">確認</h3>
+            <p id="confirmMsg" class="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">本当に実行しますか？</p>
+            <div class="mt-6 flex gap-3">
+                <button id="btnConfirmCancel" class="flex-1 rounded-xl border border-soft bg-white px-4 py-3 text-sm font-bold shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900">
+                    キャンセル
+                </button>
+                <button id="btnConfirmOk" class="flex-1 rounded-xl bg-[var(--c-main)] px-4 py-3 text-sm font-bold text-white shadow-lg transition-transform active:scale-95">
+                    実行する
+                </button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- Consult Modal -->
+  <div id="modalConsult" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"></div>
+    <div class="absolute inset-x-0 bottom-0 mx-auto w-full max-w-3xl rounded-t-3xl border border-soft bg-white p-5 shadow-xl dark:border-zinc-800 dark:bg-zinc-900 sm:bottom-auto sm:top-16 sm:rounded-3xl">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <h3 class="text-base font-semibold">自社専用版の相談</h3>
+          <p class="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
+            このデモ出力を貼って送れます。売り込みじゃなく、整理から一緒にやる感じでOKです😊
+          </p>
+        </div>
+        <button id="btnCloseConsult" class="ring-brand rounded-2xl border border-soft bg-white px-3 py-2 text-sm shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900">閉じる</button>
+      </div>
+
+      <div class="mt-4">
+        <label class="text-sm font-medium">問い合わせ文テンプレ</label>
+        <textarea id="consultText" class="ring-brand mt-2 h-48 w-full rounded-2xl border border-soft bg-zinc-50 px-4 py-3 text-[12px] leading-relaxed text-zinc-900 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 focus:ring-2 focus:ring-[var(--c-main)]" spellcheck="false"></textarea>
+        
+        <div class="mt-4 flex flex-col sm:flex-row gap-2">
+            <button id="btnCopyConsult" class="ring-brand inline-flex w-full items-center justify-center rounded-xl border border-soft bg-white px-3 py-3 text-xs font-bold shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900 sm:flex-1">
+              <i class="ph ph-copy mr-2 text-base"></i>コピーのみ
+            </button>
+            <button id="btnMailConsult" class="btn-brand ring-brand inline-flex w-full items-center justify-center rounded-xl px-3 py-3 text-xs font-bold text-white shadow-md transition-transform hover:scale-[1.02] sm:flex-1">
+                <i class="ph ph-envelope-simple mr-2 text-base"></i>コピーしてメール起動
+            </button>
+            <button id="btnGmailConsult" class="ring-brand inline-flex w-full items-center justify-center rounded-xl bg-red-500 text-white px-3 py-3 text-xs font-bold shadow-md transition-transform hover:scale-[1.02] hover:bg-red-600 sm:flex-1">
+                <i class="ph ph-google-logo mr-2 text-base"></i>コピーしてGmail起動
+            </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 pointer-events-none">
+    <div id="toast" class="toast rounded-2xl bg-zinc-900 px-4 py-3 text-sm text-white shadow-lg backdrop-blur">
+      コピーしました
+    </div>
+  </div>
+
+<script>
+(function() {
+  const LS_KEY = "spc_takara_compass_v1";
+
+  const industries = [
+    "製造業","建設・工務店","飲食","美容・サロン","小売・サービス","医療・薬局・介護","士業","IT・Web制作","不動産","その他"
+  ];
+
+  const checksByIndustry = {
+    "IT・Web制作": [
+      "チャットの情報が流れて探せない",
+      "誰が何を決めたか分からなくなる",
+      "仕様変更が多くて毎回やり直しになる",
+      "会議が長いのに結論が残らない",
+      "タスクが個人の頭の中にある",
+      "見積もりの根拠が毎回ブレる",
+      "営業と開発で前提がズレる",
+      "ドキュメントが続かない",
+      "問い合わせ対応が疲れる",
+      "引き継ぎで毎回事故る",
+      "ツールが増えすぎて逆に面倒",
+      "新人が育つ前に現場が燃える"
+    ],
+    "士業": [
+      "依頼内容が曖昧なまま進んでしまう",
+      "やり取りの履歴が散らかって探せない",
+      "同じ説明を何度も繰り返している",
+      "期限管理が属人化して不安",
+      "担当者によって対応の品質がブレる",
+      "資料の回収が毎回大変",
+      "顧問先の“本音”が拾えていない気がする",
+      "提案の切り口がマンネリになりがち",
+      "事務所内の共有が口頭で止まる",
+      "新人が育つ仕組みがない",
+      "問い合わせ対応で気力を削られる",
+      "業務が増えているのに整理が追いつかない"
+    ],
+    "製造業": [
+      "現場の引き継ぎが口頭で止まりやすい",
+      "同じミスが繰り返されてしまう",
+      "改善のアイデアが出ても続かない",
+      "作業手順が人によって違う",
+      "品質やクレーム対応が後手になる",
+      "会議はあるのに決まらない",
+      "外注や仕入先とのやり取りが散らかる",
+      "見積もりの根拠が人頼み",
+      "採用しても育成が追いつかない",
+      "現場の忙しさで記録が残らない",
+      "設備・保全の情報が共有されない",
+      "ムダな移動や探し物が多い"
+    ],
+    "飲食": [
+      "引き継ぎが曖昧でミスが増える",
+      "クレーム対応が属人的で疲れる",
+      "スタッフ教育が続かない",
+      "忙しいと記録が残らない",
+      "発注や在庫が感覚になりがち",
+      "SNSや集客が後回しになる",
+      "売上の数字を見ても次の一手が出ない",
+      "メニューや価格の見直しが進まない",
+      "シフト調整が毎回しんどい",
+      "会議しても決まらない",
+      "改善が思いついても止まる",
+      "店の強みが言葉になっていない"
+    ],
+    "建設・工務店": [
+      "現場と事務所の往復で移動時間がムダになる",
+      "図面や現場写真がスマホに埋もれて探せない",
+      "協力会社との電話・FAXが多く記録が残らない",
+      "「言った言わない」のトラブルが減らない",
+      "日報をまとめて書くため記憶が曖昧になる",
+      "見積もりの拾い出しが手作業で時間がかかる",
+      "追加工事の請求漏れが起きている",
+      "工程変更の連絡が全員に行き渡らない",
+      "職人の手配ミスが直前で発覚する",
+      "安全書類の作成で同じことを何度も書く",
+      "過去の施工事例やノウハウが共有されない",
+      "若手が育つ前に現場の忙しさで辞めてしまう"
+    ],
+    "美容・サロン": [
+      "施術中は電話に出られず予約を取りこぼす",
+      "紙カルテを探す時間でお客様を待たせる",
+      "お客様の好みや会話内容が担当者しか分からない",
+      "次回予約の案内を忘れて失客してしまう",
+      "店販商品の在庫管理が合わず棚卸しが大変",
+      "売上集計や給与計算が手作業で深夜になる",
+      "SNS更新が大事だと分かっているが続かない",
+      "スタッフのシフト調整がLINEで錯綜する",
+      "技術チェックの基準が曖昧で品質がブレる",
+      "リピート率などの数字分析ができていない",
+      "クーポン設定が複雑でレジミスが起きる",
+      "掃除や発注の役割分担が機能していない"
+    ],
+    "小売・サービス": [
+      "レジ締め後の集計作業で残業が減らない",
+      "接客と品出しで手一杯で発注が勘頼み",
+      "売れ筋商品の欠品に気づくのが遅れる",
+      "アルバイトへの指示が毎回口頭で伝わらない",
+      "クレーム内容が共有されず同じミスが起きる",
+      "POP作成や売り場作りが特定の人に偏る",
+      "シフト希望の回収と調整に時間がかかりすぎる",
+      "本部への報告作成が負担になっている",
+      "在庫がデータと合わずバックヤードを探す",
+      "顧客名簿を活用できずDM送付だけになっている",
+      "季節商品の切り替え準備がいつもギリギリ",
+      "マニュアルが古く誰も見ていない"
+    ],
+    "医療・薬局・介護": [
+      "申し送りノートの字が読めず確認に時間がとられる",
+      "急変対応などで記録業務が後回しになる",
+      "計画書や報告書の作成で残業が常態化している",
+      "家族への説明内容がスタッフ間で統一されない",
+      "物品の補充漏れがあり処置中に困る",
+      "ヒヤリハット報告が「犯人探し」になりがち",
+      "複雑なシフト作成（資格・夜勤）に時間がかかる",
+      "制度改正のたびにマニュアル修正が追いつかない",
+      "電話対応に追われて現場の手が止まる",
+      "訪問先での記録をメモし帰ってから転記している",
+      "多職種間の情報共有が遅れケアに影響する",
+      "研修の時間が取れず技術継承が進まない"
+    ],
+    "不動産": [
+      "物件確認（物確）の電話対応で一日が終わる",
+      "内見予約の調整がメールと電話で混乱する",
+      "鍵の管理がアナログで紛失リスクが不安",
+      "複数のポータルサイトへの入力が重複している",
+      "販売図面（マイソク）作成に時間がかかりすぎる",
+      "追客メールが後回しになり他社に決められる",
+      "契約書の作成・チェックでミスが許されない",
+      "入居者クレームの履歴が担当者任せになっている",
+      "オーナーへの報告書作成が月末に集中する",
+      "重要事項説明の準備で毎回バタバタする",
+      "レインズへの登録・確認作業が面倒",
+      "移動時間が長く事務処理が溜まってしまう"
+    ]
+  };
+
+  function getChecks(ind) {
+    // Other industries fallback
+    const base = [
+      "忙しくて考える前で止まってしまう",
+      "やった方がいいのは分かっているが後回し",
+      "同じ説明を何度もしている",
+      "情報が散らかって探す時間が多い",
+      "会議はあるのに決まらない",
+      "引き継ぎで抜け漏れが起きる",
+      "対応の品質が人によってブレる",
+      "見積もりや判断が感覚になりがち",
+      "ツールはあるが使い方が統一されない",
+      "新人が育つ前に現場が回らない",
+      "お客様の本音が拾いきれていない",
+      "改善が続かない"
+    ];
+    // Give slight flavor per industry name
+    if (ind === "建設・工務店" && !checksByIndustry[ind]) base[0] = "現場が忙しく、段取りが後回しになる";
+    return checksByIndustry[ind] || base;
+  }
+
+  // UI elements
+  const badgeIndustry = document.getElementById("badgeIndustry");
+  
+  // Header Buttons
+  const btnSettings = document.getElementById("btnSettings");
+  const btnGuide = document.getElementById("btnGuide");
+
+  // Modals
+  const modalSettings = document.getElementById("modalSettings");
+  const btnCloseSettings = document.getElementById("btnCloseSettings");
+  const modalGuide = document.getElementById("modalGuide");
+  const btnCloseGuide = document.getElementById("btnCloseGuide");
+
+  const selIndustry = document.getElementById("selIndustry");
+  const toneButtons = Array.from(document.querySelectorAll(".toneBtn"));
+
+  const hexMain = document.getElementById("hexMain");
+  const hexSub = document.getElementById("hexSub");
+  const hexAccent = document.getElementById("hexAccent");
+  const pickMain = document.getElementById("pickMain");
+  const pickSub = document.getElementById("pickSub");
+  const pickAccent = document.getElementById("pickAccent");
+  const btnResetColors = document.getElementById("btnResetColors");
+
+  // Theme Buttons
+  const btnThemeLight = document.getElementById("btnThemeLight");
+  const btnThemeDark = document.getElementById("btnThemeDark");
+  const btnThemeOS = document.getElementById("btnThemeOS");
+
+  const inpTheme = document.getElementById("inpTheme");
+  const selThemeTemplate = document.getElementById("selThemeTemplate"); // New Dropdown
+  const inpMemo = document.getElementById("inpMemo");
+  const listChecks = document.getElementById("listChecks");
+  const countSel = document.getElementById("countSel");
+  const btnDemo = document.getElementById("btnDemo");
+  const btnClear = document.getElementById("btnClear");
+
+  const btnGenerate = document.getElementById("btnGenerate");
+  const genStatus = document.getElementById("genStatus");
+  const outSection = document.getElementById("outSection");
+  const outText = document.getElementById("outText");
+  const tabButtons = Array.from(document.querySelectorAll(".tabBtn"));
+  const tabLabel = document.getElementById("tabLabel");
+  const btnCopyTab = document.getElementById("btnCopyTab");
+  const btnCopyAll = document.getElementById("btnCopyAll");
+  const btnSaveNote = document.getElementById("btnSaveNote");
+
+  const btnConsult = document.getElementById("btnConsult");
+  const modalConsult = document.getElementById("modalConsult");
+  const btnCloseConsult = document.getElementById("btnCloseConsult");
+  const consultText = document.getElementById("consultText");
+  const btnCopyConsult = document.getElementById("btnCopyConsult");
+  const btnMailConsult = document.getElementById("btnMailConsult");
+  const btnGmailConsult = document.getElementById("btnGmailConsult");
+
+  const toast = document.getElementById("toast");
+
+  // Confirm Modal Elements
+  const modalConfirm = document.getElementById("modalConfirm");
+  const confirmTitle = document.getElementById("confirmTitle");
+  const confirmMsg = document.getElementById("confirmMsg");
+  const confirmIcon = document.getElementById("confirmIcon");
+  const btnConfirmCancel = document.getElementById("btnConfirmCancel");
+  const btnConfirmOk = document.getElementById("btnConfirmOk");
+
+  // State
+  let state = {
+    industry: "製造業",
+    tone: "やさしい",
+    colors: { main:"#020562", sub:"#22AEC9", accent:"#FEFEFE" },
+    darkMode: null, // null=follow OS, true=dark, false=light
+    themeText: "まだ言葉になっていない困りごとを見つけたい",
+    memo: "",
+    selected: [],
+    activeTab: "nb",
+    outputs: { nb:"", slides:"", info:"", gpt:"", gemini:"" }
+  };
+  
+  let onConfirmAction = null; // Callback for confirm modal
+
+  // Helpers
+  function showToast(msg="コピーしました") {
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 1300);
+  }
+
+  function clampHex(v) {
+    if (!v) return null;
+    let s = (""+v).trim();
+    if (!s.startsWith("#")) s = "#" + s;
+    if (/^#[0-9a-fA-F]{6}$/.test(s)) return s.toUpperCase();
+    return null;
+  }
+
+  function applyColors() {
+    document.documentElement.style.setProperty("--c-main", state.colors.main);
+    document.documentElement.style.setProperty("--c-sub", state.colors.sub);
+    document.documentElement.style.setProperty("--c-accent", state.colors.accent);
+  }
+
+  function applyThemeMode() {
+    const root = document.documentElement;
+    root.classList.remove("dark");
+    
+    // Update Button States
+    [btnThemeLight, btnThemeDark, btnThemeOS].forEach(b => {
+        b.classList.remove("bg-[var(--c-main)]");
+        b.classList.remove("text-white");
+        b.classList.remove("border-transparent");
+        // Reset base styles
+        b.classList.add("bg-white", "text-zinc-900", "dark:bg-zinc-950", "dark:text-zinc-100");
+    });
+
+    let activeBtn = btnThemeOS;
+    let isDark = false;
+
+    if (state.darkMode === null) {
+      activeBtn = btnThemeOS;
+      isDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    } else if (state.darkMode === true) {
+      activeBtn = btnThemeDark;
+      isDark = true;
+    } else {
+      activeBtn = btnThemeLight;
+      isDark = false;
+    }
+
+    // Activate Button
+    activeBtn.classList.remove("bg-white", "text-zinc-900", "dark:bg-zinc-950", "dark:text-zinc-100");
+    activeBtn.classList.add("bg-[var(--c-main)]", "text-white", "border-transparent");
+
+    if (isDark) root.classList.add("dark");
+  }
+
+  function saveLS() {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e) {}
+  }
+
+  function loadLS() {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (!raw) return;
+      const obj = JSON.parse(raw);
+      if (obj && typeof obj === "object") state = { ...state, ...obj };
+    } catch(e) {}
+  }
+
+  function setActiveTab(tab) {
+    state.activeTab = tab;
+    tabButtons.forEach(b => {
+      const isOn = b.dataset.tab === tab;
+      
+      // Reset styling
+      b.classList.remove("bg-[var(--c-main)]", "text-white", "border-transparent");
+      b.classList.add("bg-white", "text-zinc-900", "border-soft", "dark:bg-zinc-900", "dark:text-zinc-100", "dark:border-zinc-700");
+
+      if (isOn) {
+        b.classList.remove("bg-white", "text-zinc-900", "border-soft", "dark:bg-zinc-900", "dark:text-zinc-100", "dark:border-zinc-700");
+        b.classList.add("bg-[var(--c-main)]", "text-white", "border-transparent");
+      }
+    });
+    outText.value = state.outputs[tab] || "";
+    saveLS();
+  }
+
+  function renderChecks() {
+    listChecks.innerHTML = "";
+    const items = getChecks(state.industry);
+    const selectedSet = new Set(state.selected);
+
+    items.forEach((txt, idx) => {
+      const id = "chk_" + idx;
+      const wrap = document.createElement("label");
+      wrap.className = "flex cursor-pointer items-start gap-3 rounded-2xl border border-soft bg-white px-4 py-3 text-sm shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900 transition-colors";
+      
+      // Styling for checked state
+      if (selectedSet.has(txt)) {
+        wrap.classList.add("border-[var(--c-main)]", "bg-indigo-50/10", "dark:bg-indigo-900/10");
+        wrap.classList.remove("border-soft");
+      }
+
+      wrap.innerHTML = `
+        <div class="relative flex items-center">
+          <input id="${id}" type="checkbox" class="peer h-4 w-4 rounded border-soft text-[var(--c-main)] focus:ring-[var(--c-main)]" />
+        </div>
+        <div class="min-w-0">
+          <div class="text-zinc-900 dark:text-zinc-100 font-medium ${selectedSet.has(txt) ? 'text-[var(--c-main)] dark:text-[var(--c-sub)]' : ''}">${escapeHtml(txt)}</div>
+        </div>
+      `;
+      const inp = wrap.querySelector("input");
+      inp.checked = selectedSet.has(txt);
+
+      inp.addEventListener("change", () => {
+        if (inp.checked) {
+          if (state.selected.length >= 10) {
+            inp.checked = false;
+            showToast("最大10個までです");
+            return;
+          }
+          state.selected.push(txt);
+        } else {
+          state.selected = state.selected.filter(x => x !== txt);
+        }
+        countSel.textContent = state.selected.length;
+        renderChecks(); // Re-render to update styles
+        saveLS();
+      });
+
+      listChecks.appendChild(wrap);
+    });
+
+    countSel.textContent = state.selected.length;
+  }
+
+  function escapeHtml(s) {
+    return (""+s)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#39;");
+  }
+
+  function openModal(el) { el.classList.remove("hidden"); }
+  function closeModal(el) { el.classList.add("hidden"); }
+
+  // --- Confirm Modal Logic ---
+  function openConfirm(title, msg, isDanger, callback) {
+    confirmTitle.textContent = title;
+    confirmMsg.innerHTML = msg.replace(/\n/g, '<br>');
+    onConfirmAction = callback;
+    
+    // Danger Styling
+    if(isDanger) {
+        btnConfirmOk.classList.remove("bg-[var(--c-main)]");
+        btnConfirmOk.classList.add("bg-red-500");
+        confirmIcon.textContent = "🗑️";
+        confirmIcon.classList.add("bg-red-100");
+        confirmIcon.classList.remove("bg-zinc-100");
+    } else {
+        btnConfirmOk.classList.remove("bg-red-500");
+        btnConfirmOk.classList.add("bg-[var(--c-main)]");
+        confirmIcon.textContent = "✨";
+        confirmIcon.classList.remove("bg-red-100");
+        confirmIcon.classList.add("bg-zinc-100");
+    }
+    
+    openModal(modalConfirm);
+  }
+
+  btnConfirmCancel.addEventListener("click", () => closeModal(modalConfirm));
+  btnConfirmOk.addEventListener("click", () => {
+    if(onConfirmAction) onConfirmAction();
+    closeModal(modalConfirm);
+  });
+  
+  modalConfirm.addEventListener("click", (e) => {
+    if (e.target === modalConfirm.querySelector(".absolute.inset-0")) closeModal(modalConfirm);
+  });
+
+  function buildCauseAndNext(selected, memo) {
+    const s = selected.join(" / ");
+    const causes = [];
+    const effects = [];
+    let firstStep = "まずは「決定事項」と「次アクション」だけを残す仕組みを作る";
+
+    const hasInfo = /探せない|散らか|情報|履歴|ノート|図面|写真/.test(s);
+    const hasDecision = /決めた|結論|会議|分から|前提|言った言わない/.test(s);
+    const hasDocs = /ドキュメント|記録|残らない|書く|作成|入力/.test(s);
+    const hasHandover = /引き継ぎ|事故|抜け漏れ|ミス|申し送り|指示/.test(s);
+    const hasCustomer = /問い合わせ|クレーム|説明|顧客|家族/.test(s);
+    const hasEstimate = /見積|計算|集計|請求/.test(s);
+    const hasTraining = /新人|育成|マニュアル|教育|技術/.test(s);
+    const hasTools = /ツール|増えすぎ|ポータル|SNS/.test(s);
+    const hasBusy = /忙しい|後回し|止ま|電話|移動|往復/.test(s) || (memo && /忙しい|余裕|時間/.test(memo));
+
+    if (hasBusy) causes.push("忙しさで、整理が後回しになりやすい");
+    if (hasInfo) causes.push("情報が分散し、探す時間が増えている");
+    if (hasDecision) causes.push("決定と前提が見える形で残っていない");
+    if (hasDocs) causes.push("記録の型がなく、続かない");
+    if (hasHandover) causes.push("引き継ぎが口頭に寄り、抜けやすい");
+    if (hasTools) causes.push("ツールはあるが運用ルールが統一されていない");
+    if (causes.length < 3) {
+      causes.push("人に依存していて、仕組み化が追いついていない");
+    }
+    const top3 = causes.slice(0,3);
+
+    if (hasDecision) effects.push("手戻りが減り、判断が早くなる");
+    if (hasInfo) effects.push("探す時間が減り、会話がスムーズになる");
+    if (hasCustomer) effects.push("対応品質が安定し、気力が守られる");
+    if (hasEstimate) effects.push("見積が安定し、赤字リスクが下がる");
+    if (hasTraining) effects.push("新人が早く育ち、ベテランが燃えにくい");
+    if (effects.length < 2) effects.push("チームの迷いが減り、前に進みやすくなる");
+
+    if (hasCustomer) firstStep = "まずは「問い合わせ対応の型」を作り、返信の迷いを減らす";
+    if (hasEstimate) firstStep = "まずは「見積の根拠テンプレ」を作り、ブレを減らす";
+    if (hasTraining) firstStep = "まずは「新人が迷う場面の型」を作り、教育の負担を減らす";
+    if (hasTools) firstStep = "まずは「入力が二重になる箇所」を1つだけ潰す";
+    if (hasDecision || hasDocs || hasInfo) firstStep = "まずは「決定事項・次アクション・担当」を1枚に残す";
+    if (hasBusy) firstStep = firstStep + "（忙しい前提で、選ぶだけに寄せる）";
+
+    return { top3, effects: effects.slice(0,3), firstStep };
+  }
+
+  function buildOutputs() {
+    const theme = (state.themeText || "").trim() || "まだ言葉になっていない困りごとを見つけたい";
+    const ind = state.industry;
+    const tone = state.tone;
+    const memo = (state.memo || "").trim();
+    const selected = state.selected.slice(0,10);
+    const { top3, effects, firstStep } = buildCauseAndNext(selected, memo);
+
+    const palette = `メイン：${state.colors.main}\nサブ：${state.colors.sub}\nアクセント：${state.colors.accent}`;
+
+    const target = (ind === "士業") ? "所長・担当者・顧問先対応メンバー" :
+                   (ind === "製造業") ? "現場リーダー・品質・管理部門" :
+                   (ind === "飲食") ? "店長・スタッフ・運営担当" :
+                   (ind === "IT・Web制作") ? "PM・開発・営業・経営者" : "経営者・現場担当";
+
+    const purpose = "潜在ニーズ（課題の手前）を言語化し、次の一歩を決めやすくする";
+    const bg = (tone === "熱量")
+      ? "忙しいのは当たり前。だからこそ、考える前で止まる時間を減らしたい。"
+      : (tone === "ビジネス")
+      ? "忙しさと情報分散により意思決定が遅れ、手戻りや品質ブレが発生しやすい。"
+      : "忙しくて整理できない、でも放置するとしんどい。そんな所から始める。";
+
+    // NotebookLM source
+    const nb = [
+      "潜在ニーズレーダー（NotebookLM用ソース）",
+      "",
+      "1. テーマ",
+      `- ${theme}`,
+      "",
+      "2. 対象",
+      `- 業種：${ind}`,
+      `- 想定：${target}`,
+      "",
+      "3. 目的",
+      `- ${purpose}`,
+      "",
+      "4. 背景（Why）",
+      `- ${bg}`,
+      "",
+      "5. 最近の状態（選択）",
+      ...(selected.length ? selected.map((x,i)=>`- ${String(i+1).padStart(2,"0")} ${x}`) : ["- （未選択）"]),
+      memo ? "" : null,
+      memo ? "6. 追加メモ" : null,
+      memo ? `- ${memo}` : null,
+      "",
+      "7. 共通原因トップ3（仮）",
+      ...top3.map((x,i)=>`- ${i+1}. ${x}`),
+      "",
+      "8. 最初の一手（仮）",
+      `- ${firstStep}`,
+      "",
+      "9. 期待効果（仮）",
+      ...effects.map((x)=>`- ${x}`),
+      "",
+      "10. 次の一歩",
+      "- この出力を社内で1回共有して、言い換え（自社の言葉）を足す",
+      "- その言葉で、スライドと図を作る"
+    ].filter(Boolean).join("\n");
+
+    // Slides (10)
+    const slides = [
+      "潜在ニーズレーダー（スライド構成 10枚）",
+      "",
+      "1) タイトル",
+      `- ${theme}`,
+      "- 課題の前の違和感を拾う",
+      "- 整理して、次の一歩を見える化",
+      "- まずは“選ぶだけ”で始める",
+      `話す一言：忙しいからこそ、整理の型が味方になります`,
+      "",
+      "2) よくある状態",
+      "- やった方がいいのは分かっている",
+      "- でも、考える前で止まってしまう",
+      "- 結果、手戻りと疲れが積み上がる",
+      `話す一言：能力の問題じゃなく、構造の問題です`,
+      "",
+      "3) 今回の選択（現場の声）",
+      ...(selected.length ? selected.slice(0,3).map(x=>`- ${x}`) : ["- （未選択）"]),
+      selected.length>3 ? "- ほか、複数" : "- まずはここからでOK",
+      "- ここに“詰まり”が出ます",
+      `話す一言：よくある所から入ると、前に進みやすいです`,
+      "",
+      "4) 詰まりの正体（仮）",
+      ...top3.map(x=>`- ${x}`),
+      "- 記録と共有の型がないと増幅する",
+      "- 忙しさで、さらに回らなくなる",
+      `話す一言：最初は完璧じゃなくていい。続く型が大事です`,
+      "",
+      "5) まずの狙い",
+      "- いきなりAI導入を目的にしない",
+      "- まずは“言葉”と“整理”を整える",
+      "- AIが効く土台を作る",
+      `話す一言：AIは魔法じゃなく、土台の上で効く道具です`,
+      "",
+      "6) 最初の一手（仮）",
+      `- ${firstStep}`,
+      "- 30秒でできる形に寄せる",
+      "- 誰でも同じ型で残せるようにする",
+      `話す一言：小さく始めるほど、早く前に進みます`,
+      "",
+      "7) 出力の形",
+      "- NotebookLM用ソース",
+      "- スライド構成",
+      "- インフォグラ構造",
+      `話す一言：同じ中身を、用途別に使える形へ変換します`,
+      "",
+      "8) 期待効果（仮）",
+      ...effects.map(x=>`- ${x}`),
+      "- 迷いが減ると、意思決定が早くなる",
+      `話す一言：ラクになると、改善が続きます`,
+      "",
+      "9) 次の一歩（現場でやること）",
+      "- この出力を1回、チームで共有",
+      "- 自社の言葉に言い換える",
+      "- 1週間だけ運用して感触を見る",
+      `話す一言：1回の成功体験が、DXの入口になります`,
+      "",
+      "10) まとめ",
+      "- 答えより、整理が価値になる時がある",
+      "- 課題の前の違和感を拾う",
+      "- その会社の言葉に置き換えた瞬間、力になる",
+      `話す一言：このデモは入口。自社専用に整えると資産になります`
+    ].join("\n");
+
+    // Infographic structure
+    const info = [
+      "潜在ニーズレーダー（インフォグラ構造ソース）",
+      "",
+      "左：現場の状態",
+      ...(selected.length ? selected.slice(0,4).map(x=>`- ${x}`) : ["- 忙しくて整理が後回し"]),
+      "",
+      "中央：詰まりの正体（原因トップ3）",
+      ...top3.map(x=>`- ${x}`),
+      "",
+      "右：解決後の状態（期待効果）",
+      ...effects.map(x=>`- ${x}`),
+      "",
+      "下：アウトプット",
+      "- NotebookLM用ソース",
+      "- スライド構成（10枚）",
+      "- GPT/Geminiプロンプト",
+      "",
+      "補足：色指定（3原色）",
+      palette
+    ].join("\n");
+
+    // GPT prompt
+    const gpt = [
+      "GPT用プロンプト（コピペ）",
+      "",
+      "あなたは中小企業の現場改善コンサルタント兼スライド構成ライターです。",
+      "以下の整理結果をもとに、NotebookLM向けの読みやすいソース、スライド原稿、インフォグラ用要約を作成してください。",
+      "",
+      "条件",
+      `- 業種：${ind}`,
+      `- 出力トーン：${tone}`,
+      "- 専門用語は避け、やさしい日本語で",
+      "- 見出し＋短文＋箇条書き中心",
+      "- 断定しすぎず、現場の共感が出る言い方にする",
+      "",
+      "配色条件（必ず反映）",
+      palette,
+      "",
+      "入力（整理結果）",
+      "-----",
+      nb,
+      "-----",
+      "",
+      "出力してほしいもの",
+      "1) NotebookLM用ソース（10セクション）",
+      "2) スライド原稿（10枚、各：タイトル/要点3つ/話す一言）",
+      "3) インフォグラ用の要約（左/中央/右/下の型）",
+      "4) 最後に『次の一歩』を3つ提案"
+    ].join("\n");
+
+    // Gemini prompt
+    const gemini = [
+      "Gemini用プロンプト（コピペ）",
+      "",
+      "あなたはインフォグラフィック設計とスライド構成が得意な編集者です。",
+      "以下の整理結果から、スライド向け再構成とインフォグラ向け要約を作ってください。",
+      "",
+      "条件",
+      `- 業種：${ind}`,
+      `- トーン：${tone}`,
+      "- 日本語はやさしく、専門用語は使わない",
+      "- 余白のある短文で、見出しを短く",
+      "",
+      "配色（必ず反映）",
+      palette,
+      "",
+      "入力（整理結果）",
+      "-----",
+      nb,
+      "-----",
+      "",
+      "やってほしい出力（2種類）",
+      "A スライド構成（10枚）：タイトル/要点3つ/話す一言",
+      "B インフォグラ構造：左（現場）/中央（詰まり）/右（解決後）/下（アウトプット）",
+      "",
+      "追加",
+      "- それぞれ、見出しの言い回しを3パターン提案"
+    ].join("\n");
+
+    state.outputs = { nb, slides, info, gpt, gemini };
+    return state.outputs;
+  }
+
+  function setConsultTemplate() {
+    const theme = (state.themeText || "").trim() || "（未入力）";
+    const ind = state.industry;
+    const tone = state.tone;
+
+    const txt = [
+      "件名：潜在ニーズレーダー（デモ）出力をもとに、自社専用版の相談",
+      "",
+      "こんにちは。デモで出力した内容を貼ります。",
+      "この内容をベースに、当社の言葉に置き換えた「自社専用版（スライド/図/プロンプト）」を一緒に作りたいです。",
+      "",
+      "前提",
+      `- 業種：${ind}`,
+      `- テーマ：${theme}`,
+      `- トーン：${tone}`,
+      "",
+      "出力（貼り付け）",
+      "-----",
+      (state.outputs.nb || "（まだ出力がありません。アプリで『まとめて出力する』を押してください）"),
+      "-----",
+      "",
+      "相談したいこと",
+      "- うちの場合、どこが“詰まりの正体”になっているか",
+      "- 最初の一手を、現実的にどう設計するか",
+      "- 社内共有用のスライドと図を完成させたい"
+    ].join("\n");
+
+    consultText.value = txt;
+  }
+
+  // Actions
+  function doGenerate() {
+    state.themeText = inpTheme.value;
+    state.memo = inpMemo.value;
+    saveLS();
+
+    genStatus.textContent = "出力中…";
+    btnGenerate.disabled = true;
+    btnGenerate.classList.add("opacity-80");
+
+    setTimeout(() => {
+      buildOutputs();
+      setActiveTab(state.activeTab || "nb");
+      setConsultTemplate();
+      btnGenerate.disabled = false;
+      btnGenerate.classList.remove("opacity-80");
+      genStatus.textContent = "出力できました。コピーして使えます😊";
+      outSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 800);
+  }
+
+  // Updated Robust Copy Function (Based on Reference)
+  function copyText(txt) {
+    // Create a temporary element to handle copy robustly (like reference file)
+    const ta = document.createElement("textarea");
+    ta.value = txt;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, 99999); // For mobile devices
+
+    const success = () => {
+        document.body.removeChild(ta);
+        showToast("コピーしました");
+    };
+
+    const fail = () => {
+        document.body.removeChild(ta);
+        alert("コピーに失敗しました。手動でコピーしてください。");
+    };
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(success).catch(() => {
+            // Fallback to execCommand if clipboard API fails
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) success(); else fail();
+            } catch (err) {
+                fail();
+            }
+        });
+    } else {
+        // Fallback for older browsers
+        try {
+            const successful = document.execCommand('copy');
+            if (successful) success(); else fail();
+        } catch (err) {
+            fail();
+        }
+    }
+  }
+
+  // Logic Core for Clear/Demo
+  function hardClearCore() {
+    state.themeText = "まだ言葉になっていない困りごとを見つけたい";
+    state.memo = "";
+    state.selected = [];
+    state.outputs = { nb:"", slides:"", info:"", gpt:"", gemini:"" };
+    inpTheme.value = state.themeText;
+    inpMemo.value = "";
+    countSel.textContent = "0";
+    outText.value = "";
+    genStatus.textContent = "選んだ内容から、原因と一歩を仮で組み立てます";
+    setConsultTemplate();
+    renderChecks();
+    saveLS();
+    showToast("クリアしました");
+  }
+
+  function demoFillCore() {
+    state.industry = "製造業";
+    selIndustry.value = state.industry;
+    badgeIndustry.textContent = "業種：" + state.industry;
+
+    state.themeText = "現場の「言った言わない」をなくし、手戻りを減らしたい";
+    state.memo = "朝礼での指示が全員に伝わっていないことがある。日報が手書きのため、後から検索できずに過去の不具合事例が生かされていない。";
+    inpTheme.value = state.themeText;
+    inpMemo.value = state.memo;
+
+    const picks = [
+      "現場の引き継ぎが口頭で止まりやすい",
+      "同じミスが繰り返されてしまう",
+      "作業手順が人によって違う",
+      "品質やクレーム対応が後手になる",
+      "会議はあるのに決まらない",
+      "現場の忙しさで記録が残らない",
+      "ムダな移動や探し物が多い"
+    ];
+    state.selected = picks.slice(0,10);
+    countSel.textContent = state.selected.length;
+
+    renderChecks();
+    saveLS();
+    showToast("デモデータを入れました");
+  }
+  
+  // Handlers
+  function handleClearClick() {
+      openConfirm("すべてクリア", "入力した内容をすべて消去して、\n初期状態に戻しますか？", true, hardClearCore);
+  }
+  
+  function handleDemoClick() {
+      openConfirm("デモデータを投入", "現在の入力を上書きして、\nサンプルデータを自動入力しますか？", false, demoFillCore);
+  }
+
+  function toggleThemeMode() {
+    if (state.darkMode === null) state.darkMode = true;
+    else if (state.darkMode === true) state.darkMode = false;
+    else state.darkMode = null;
+
+    applyThemeMode();
+    saveLS();
+    const label = (state.darkMode === null) ? "OSに合わせます" : (state.darkMode ? "ダーク" : "ライト");
+    showToast("表示：" + label);
+  }
+
+  function bindColorPair(hexEl, pickEl, key) {
+    function setBoth(v) {
+      const h = clampHex(v);
+      if (!h) return false;
+      state.colors[key] = h;
+      hexEl.value = h;
+      pickEl.value = h;
+      applyColors();
+      saveLS();
+      return true;
+    }
+
+    hexEl.addEventListener("blur", () => {
+      const ok = setBoth(hexEl.value);
+      if (!ok) {
+        hexEl.value = state.colors[key];
+        showToast("HEXは #RRGGBB で入力してね");
+      }
+    });
+    pickEl.addEventListener("input", () => setBoth(pickEl.value));
+  }
+
+  function setTone(t) {
+    state.tone = t;
+    toneButtons.forEach(b => {
+      const on = b.dataset.tone === t;
+      // Reset
+      b.classList.remove("bg-[var(--c-main)]", "text-white", "border-transparent", "bg-white", "text-zinc-900", "dark:bg-zinc-900", "dark:text-zinc-100");
+      
+      if(on) {
+          b.classList.add("bg-[var(--c-main)]", "text-white", "border-transparent");
+      } else {
+          b.classList.add("bg-white", "text-zinc-900", "dark:bg-zinc-900", "dark:text-zinc-100");
+      }
+    });
+    saveLS();
+  }
+
+  // Events
+  btnSettings.addEventListener("click", () => openModal(modalSettings));
+  btnCloseSettings.addEventListener("click", () => closeModal(modalSettings));
+  modalSettings.addEventListener("click", (e) => {
+    if (e.target === modalSettings.querySelector(".absolute.inset-0")) closeModal(modalSettings);
+  });
+
+  btnGuide.addEventListener("click", () => openModal(modalGuide));
+  btnCloseGuide.addEventListener("click", () => closeModal(modalGuide));
+  modalGuide.addEventListener("click", (e) => {
+    if (e.target === modalGuide.querySelector(".absolute.inset-0")) closeModal(modalGuide);
+  });
+
+  btnThemeLight.addEventListener("click", () => { state.darkMode = false; applyThemeMode(); saveLS(); });
+  btnThemeDark.addEventListener("click", () => { state.darkMode = true; applyThemeMode(); saveLS(); });
+  btnThemeOS.addEventListener("click", () => { state.darkMode = null; applyThemeMode(); saveLS(); });
+
+  btnConsult.addEventListener("click", () => {
+    setConsultTemplate();
+    openModal(modalConsult);
+  });
+  btnCloseConsult.addEventListener("click", () => closeModal(modalConsult));
+  modalConsult.addEventListener("click", (e) => {
+    if (e.target === modalConsult.querySelector(".absolute.inset-0")) closeModal(modalConsult);
+  });
+
+  selIndustry.addEventListener("change", () => {
+    state.industry = selIndustry.value;
+    badgeIndustry.textContent = "業種：" + state.industry;
+    const candidates = new Set(getChecks(state.industry));
+    state.selected = state.selected.filter(x => candidates.has(x)).slice(0,10);
+    renderChecks();
+    saveLS();
+    showToast("業種を切り替えました");
+  });
+
+  toneButtons.forEach(b => b.addEventListener("click", () => setTone(b.dataset.tone)));
+
+  bindColorPair(hexMain, pickMain, "main");
+  bindColorPair(hexSub, pickSub, "sub");
+  bindColorPair(hexAccent, pickAccent, "accent");
+
+  btnResetColors.addEventListener("click", () => {
+    state.colors = { main:"#020562", sub:"#22AEC9", accent:"#FEFEFE" };
+    hexMain.value = state.colors.main; pickMain.value = state.colors.main;
+    hexSub.value = state.colors.sub; pickSub.value = state.colors.sub;
+    hexAccent.value = state.colors.accent; pickAccent.value = state.colors.accent;
+    applyColors();
+    saveLS();
+    showToast("配色を戻しました");
+  });
+
+  btnGenerate.addEventListener("click", doGenerate);
+
+  btnCopyTab.addEventListener("click", () => copyText(outText.value || ""));
+  btnCopyAll.addEventListener("click", () => {
+    const all = [
+      "=== NotebookLM用ソース ===",
+      state.outputs.nb || "",
+      "",
+      "=== スライド構成（10枚） ===",
+      state.outputs.slides || "",
+      "",
+      "=== インフォグラ構造 ===",
+      state.outputs.info || "",
+      "",
+      "=== GPT用プロンプト ===",
+      state.outputs.gpt || "",
+      "",
+      "=== Gemini用プロンプト ===",
+      state.outputs.gemini || ""
+    ].join("\n");
+    copyText(all);
+  });
+
+  btnSaveNote.addEventListener("click", () => {
+    saveLS();
+    showToast("保存しました");
+  });
+
+  btnCopyConsult.addEventListener("click", () => copyText(consultText.value || ""));
+  
+  // Mail Buttons Logic
+  const mailTo = "spc@smileplusctg.com"; // User requested email address
+  const mailSubject = "潜在ニーズレーダー（デモ）出力結果の相談";
+
+  // Mail (Default)
+  btnMailConsult.addEventListener("click", () => {
+    copyText(consultText.value);
+    const body = "（先ほどコピーした内容をここに貼り付けてください）";
+    const mailtoUrl = `mailto:${mailTo}?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(body)}`;
+    setTimeout(() => { window.location.href = mailtoUrl; }, 300);
+  });
+
+  // Gmail (New)
+  btnGmailConsult.addEventListener("click", () => {
+    // クリップボードにもコピー（バックアップ）
+    copyText(consultText.value);
+    
+    // 本文をURLパラメータにセット
+    const body = consultText.value;
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${mailTo}&su=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(body)}`;
+    
+    setTimeout(() => { window.open(gmailUrl, '_blank'); }, 300);
+  });
+
+  // Theme Dropdown Logic
+  selThemeTemplate.addEventListener("change", (e) => {
+    const val = e.target.value;
+    if (val) {
+        inpTheme.value = val;
+        state.themeText = val;
+        saveLS();
+        // Optional: Reset dropdown to default state after selection if desired
+        // e.target.value = ""; 
+    }
+  });
+
+  btnDemo.addEventListener("click", handleDemoClick);
+  btnClear.addEventListener("click", handleClearClick);
+
+  tabButtons.forEach(b => b.addEventListener("click", () => {
+    const tab = b.dataset.tab;
+    if (!tab) return;
+    setActiveTab(tab);
+  }));
+
+  inpTheme.addEventListener("input", () => { state.themeText = inpTheme.value; saveLS(); });
+  inpMemo.addEventListener("input", () => { state.memo = inpMemo.value; saveLS(); });
+
+  // Init
+  loadLS();
+
+  // reflect loaded values
+  selIndustry.value = industries.includes(state.industry) ? state.industry : "その他";
+  badgeIndustry.textContent = "業種：" + selIndustry.value;
+  state.industry = selIndustry.value;
+
+  inpTheme.value = state.themeText || "";
+  inpMemo.value = state.memo || "";
+
+  // colors
+  hexMain.value = state.colors.main; pickMain.value = state.colors.main;
+  hexSub.value = state.colors.sub; pickSub.value = state.colors.sub;
+  hexAccent.value = state.colors.accent; pickAccent.value = state.colors.accent;
+
+  applyColors();
+  applyThemeMode();
+
+  setTone(state.tone || "やさしい");
+  renderChecks();
+
+  setActiveTab(state.activeTab || "nb");
+  setConsultTemplate();
+
+  if (window.matchMedia) {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+      if (state.darkMode === null) applyThemeMode();
+    });
+  }
+})();
+</script>
+</body>
+</html>
