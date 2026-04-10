@@ -3,282 +3,373 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>潜在ニーズレーダー（デモ盤）</title>
+  <title>潜在ニーズみっけ（デモ盤）</title>
+  
+  <!-- Favicon & OGP -->
+  <link rel="icon" href="https://spc-jp.github.io/senzai-needs/favicon.png" type="image/png" />
+  <meta property="og:title" content="潜在ニーズみっけ（デモ盤）" />
+  <meta property="og:description" content="まだ言葉になっていない困りごとを、整理して出力" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://spc-jp.github.io/senzai-needs/ogp.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@600;700&display=swap" rel="stylesheet">
+  
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+        darkMode: 'class',
+        theme: {
+            extend: {
+                fontFamily: {
+                    sans: ['"Noto Sans JP"', 'sans-serif'],
+                    serif: ['"Noto Serif JP"', 'serif'],
+                },
+                colors: {
+                    spc: {
+                        main: '#223670',
+                        gold: '#D0A900',
+                    }
+                }
+            }
+        }
+    }
+  </script>
   <!-- Phosphor Icons -->
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <meta name="color-scheme" content="light dark" />
   <style>
-    /* SPCカラー定義 */
     :root { 
-      --c-main: #020562; /* 濃紺 */
-      --c-sub: #22AEC9;  /* 水色 */
-      --c-accent: #FEFEFE; /* 白 */
+      --c-main: #223670; 
+      --c-sub: #D0A900; 
+      --c-accent: #FFFFFF; 
     }
 
-    /* メインヘッダー用：SPCカラーを活かしたリッチなグラデーション */
     .bg-brand-header {
       background-color: var(--c-main);
       background-image: 
-        radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--c-sub) 50%, transparent) 0%, transparent 40%),
-        linear-gradient(135deg, var(--c-main) 0%, color-mix(in srgb, var(--c-main) 60%, black) 100%);
+        radial-gradient(circle at 100% 0%, rgba(208, 169, 0, 0.15) 0%, transparent 50%),
+        linear-gradient(135deg, var(--c-main) 0%, #0c142e 100%);
       color: var(--c-accent);
+      border-bottom: 2px solid rgba(208, 169, 0, 0.3);
     }
 
-    /* その他UIパーツ用 */
-    .ring-brand:focus { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-sub) 35%, transparent); }
-    
-    .btn-brand { 
-      background: var(--c-main); 
-      color: var(--c-accent);
+    .btn-gold {
+      background: linear-gradient(135deg, #D0A900 0%, #e6c53a 50%, #b89300 100%);
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.2);
     }
+    .btn-gold:hover { filter: brightness(1.1); }
+
+    .ring-brand:focus { outline: none; box-shadow: 0 0 0 3px rgba(208, 169, 0, 0.3); border-color: var(--c-sub); }
+    
+    .btn-brand { background: var(--c-main); color: var(--c-accent); }
     .btn-brand:hover { filter: brightness(1.2); }
     
-    .btn-sub { 
-      background: var(--c-sub); 
-      color: var(--c-accent);
-    }
-    .btn-sub:hover { filter: brightness(1.1); }
-
-    /* チップ（バッジ） */
-    .chip-brand { 
-      border-color: color-mix(in srgb, var(--c-main) 30%, transparent); 
-      background: color-mix(in srgb, var(--c-main) 5%, transparent); 
-      color: var(--c-main);
-    }
-    /* ヘッダー内のチップ（白ベース） */
     .chip-on-dark {
-      background: rgba(255, 255, 255, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(208, 169, 0, 0.4);
       color: var(--c-accent);
       backdrop-filter: blur(4px);
     }
 
-    /* ヘッダー内のボタン */
     .btn-on-dark {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.2);
       color: var(--c-accent);
       backdrop-filter: blur(4px);
     }
-    .btn-on-dark:hover {
-      background: rgba(255, 255, 255, 0.25);
-    }
+    .btn-on-dark:hover { background: rgba(255, 255, 255, 0.2); }
 
     .border-soft { border-color: color-mix(in srgb, #000 10%, transparent); }
+    .dark .border-soft { border-color: rgba(255,255,255,0.1); }
+    
     .toast { transform: translateY(12px) translateX(-50%); opacity: 0; transition: .2s ease; }
     .toast.show { transform: translateY(0) translateX(-50%); opacity: 1; }
-    @media (prefers-reduced-motion: reduce) {
-      .toast { transition: none; }
+
+    .modal-content {
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .modal.show .modal-content {
+      transform: translateY(0);
+      opacity: 1;
     }
   </style>
 </head>
 
-<body class="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
-  <div class="mx-auto max-w-3xl px-4 pb-28">
-    <!-- Header: SPCカラーを強調 -->
-    <header class="mt-4 rounded-3xl border border-white/10 bg-brand-header p-6 shadow-lg">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+<!-- pt-11 を追加して上部固定バナーの被りを防ぎます -->
+<body class="min-h-screen bg-slate-50 text-slate-800 dark:bg-zinc-950 dark:text-slate-200 pt-11">
+  
+  <!-- 上部固定バナー（無料体験状況） -->
+  <div id="premiumBanner" class="fixed top-0 inset-x-0 z-[100] transition-colors cursor-pointer text-center py-2.5 px-4 shadow-md text-sm font-bold flex items-center justify-center gap-2" onclick="openModal(document.getElementById('modalPremium'))">
+    <span id="bannerIcon">🎁</span>
+    <span id="bannerText">今なら3回まで無料でお試しいただけます（登録不要）</span>
+  </div>
+
+  <div class="mx-auto max-w-4xl px-4 pb-28">
+    <!-- Header -->
+    <header class="mt-4 rounded-3xl bg-brand-header p-8 shadow-xl relative overflow-hidden">
+      <div class="absolute -right-20 -top-20 w-64 h-64 bg-spc-gold opacity-10 rounded-full blur-3xl pointer-events-none"></div>
+      
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
         <div class="min-w-0">
-          <div class="inline-flex flex-wrap items-center gap-2 rounded-full chip-on-dark px-3 py-1 text-xs">
-            <span class="font-medium">デモ盤</span>
-            <span class="opacity-60">/</span>
+          <div class="inline-flex flex-wrap items-center gap-2 rounded-full chip-on-dark px-3 py-1.5 text-xs tracking-wide">
+            <span class="text-spc-gold"><i class="ph-fill ph-sparkle"></i></span>
+            <span>デモ盤</span>
+            <span class="opacity-50">/</span>
             <span>潜在ニーズ直球</span>
-            <span class="opacity-60">/</span>
-            <span id="badgeIndustry" class="truncate">業種：製造業</span>
+            <span class="opacity-50">/</span>
+            <span id="badgeIndustry" class="truncate font-bold">業種：IT・Web制作</span>
           </div>
-          <h1 class="mt-3 text-2xl font-bold tracking-tight text-white drop-shadow-md">潜在ニーズレーダー</h1>
-          <p class="mt-2 text-sm leading-relaxed text-white/90">
+          <h1 class="mt-4 text-3xl md:text-4xl font-serif font-bold tracking-tight text-white drop-shadow-md">潜在ニーズみっけ</h1>
+          <p class="mt-2 text-sm md:text-base leading-relaxed text-white/80 font-light">
             まだ言葉になっていない困りごとを、整理して出力
           </p>
         </div>
 
-        <div class="flex shrink-0 items-center gap-2 self-end sm:self-auto">
-           <button id="btnGuide" class="btn-on-dark inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-medium shadow-sm transition-colors">
-            <i class="ph ph-book-open-text mr-1.5 text-lg"></i>使い方
+        <div class="flex shrink-0 items-center gap-2 self-end md:self-auto">
+           <button id="btnGuide" class="btn-on-dark inline-flex items-center justify-center rounded-2xl px-5 py-2.5 text-sm font-medium shadow-sm transition-colors">
+            <i class="ph ph-book-open-text mr-2 text-lg"></i>使い方
           </button>
-          <button id="btnSettings" class="btn-on-dark inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-medium shadow-sm transition-colors" aria-haspopup="dialog">
-            <i class="ph ph-gear-six mr-1.5 text-lg"></i>設定
+          <button id="btnSettings" class="btn-on-dark inline-flex items-center justify-center rounded-2xl px-5 py-2.5 text-sm font-medium shadow-sm transition-colors" aria-haspopup="dialog">
+            <i class="ph ph-gear-six mr-2 text-lg"></i>設定
           </button>
         </div>
       </div>
     </header>
 
-    <main class="mt-5 space-y-4">
-      <section class="rounded-3xl border border-soft bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div class="flex-1">
-            <div class="flex items-center justify-between mb-2">
-              <label class="text-sm font-medium text-zinc-800 dark:text-zinc-200">今日のテーマ</label>
-              
-              <!-- Theme Templates Dropdown -->
-              <div class="relative group">
-                <select id="selThemeTemplate" class="appearance-none cursor-pointer rounded-lg border border-soft bg-zinc-50 py-1.5 pl-3 pr-8 text-xs font-medium text-zinc-600 shadow-sm focus:border-[var(--c-main)] focus:ring-1 focus:ring-[var(--c-main)] dark:border-zinc-800 dark:bg-zinc-800 dark:text-zinc-400">
-                  <option value="">✨ ヒント：よくあるテーマから選ぶ</option>
-                  <option value="まだ言葉になっていない困りごとを見つけたい">📌 まだ言葉になっていない困りごとを見つけたい</option>
-                  <option value="現場の「忙しい」を具体的に分解して楽にしたい">🏃 現場の「忙しい」を具体的に分解して楽にしたい</option>
-                  <option value="属人化している業務を洗い出して標準化したい">🔑 属人化している業務を洗い出して標準化したい</option>
-                  <option value="新人が育つ仕組みを作って、定着率を上げたい">🌱 新人が育つ仕組みを作って、定着率を上げたい</option>
-                  <option value="会議やチャットの連絡ロス・手戻りを減らしたい">💬 会議やチャットの連絡ロス・手戻りを減らしたい</option>
-                  <option value="ITツールを入れたが定着しない原因を知りたい">💻 ITツールを入れたが定着しない原因を知りたい</option>
-                  <option value="将来への漠然とした不安を整理してスッキリしたい">☁️ 将来への漠然とした不安を整理してスッキリしたい</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-zinc-500">
-                  <i class="ph ph-caret-down text-xs"></i>
-                </div>
+    <main class="mt-6 space-y-6">
+      
+      <!-- Theme Input Section -->
+      <section class="rounded-3xl border border-soft bg-white p-6 md:p-8 shadow-sm dark:bg-zinc-900 transition-all">
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-base font-bold text-spc-main dark:text-blue-300 flex items-center gap-2">
+              <i class="ph-fill ph-target text-spc-gold"></i>今日のテーマ
+            </label>
+            
+            <div class="relative group">
+              <select id="selThemeTemplate" class="appearance-none cursor-pointer rounded-xl border border-slate-200 bg-slate-50 py-2 pl-4 pr-10 text-xs font-bold text-slate-600 shadow-sm focus:border-spc-gold focus:ring-2 focus:ring-spc-gold/30 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 transition-all">
+                <option value="">✨ ヒント：よくあるテーマから選ぶ</option>
+                <option value="まだ言葉になっていない困りごとを見つけたい">📌 まだ言葉になっていない困りごとを見つけたい</option>
+                <option value="現場の「忙しい」を具体的に分解して楽にしたい">🏃 現場の「忙しい」を具体的に分解して楽にしたい</option>
+                <option value="属人化している業務を洗い出して標準化したい">🔑 属人化している業務を洗い出して標準化したい</option>
+                <option value="新人が育つ仕組みを作って、定着率を上げたい">🌱 新人が育つ仕組みを作って、定着率を上げたい</option>
+                <option value="会議やチャットの連絡ロス・手戻りを減らしたい">💬 会議やチャットの連絡ロス・手戻りを減らしたい</option>
+                <option value="ITツールを入れたが定着しない原因を知りたい">💻 ITツールを入れたが定着しない原因を知りたい</option>
+                <option value="将来への漠然とした不安を整理してスッキリしたい">☁️ 将来への漠然とした不安を整理してスッキリしたい</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-spc-gold">
+                <i class="ph-bold ph-caret-down"></i>
               </div>
             </div>
-
-            <input id="inpTheme" class="ring-brand mt-1 w-full rounded-2xl border border-soft bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
-              placeholder="ここに入力するか、上のヒントから選べます" />
-            <p class="mt-2 text-xs text-zinc-600 dark:text-zinc-400">
-              選んだあとに自由に変えられます。ふわっとしたままでOKです😊
-            </p>
           </div>
+
+          <input id="inpTheme" class="ring-brand w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-base text-slate-800 shadow-inner placeholder:text-slate-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-slate-100 transition-all"
+            placeholder="ここに入力するか、上のヒントから選べます" />
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            選んだあとに自由に変えられます。ふわっとしたままでOKです。
+          </p>
         </div>
       </section>
 
-      <section class="rounded-3xl border border-soft bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-        <div class="flex items-start justify-between gap-3">
+      <!-- Check List Section -->
+      <section class="rounded-3xl border border-soft bg-white p-6 md:p-8 shadow-sm dark:bg-zinc-900 transition-all">
+        <div class="flex items-start justify-between gap-3 mb-6">
           <div>
-            <h2 class="text-base font-semibold">最近の状態チェック</h2>
-            <p class="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
-              選ぶだけでOK。最大10個まで（いま <span id="countSel" class="font-bold text-[var(--c-sub)]">0</span>/10）。
+            <h2 class="text-base font-bold text-spc-main dark:text-blue-300 flex items-center gap-2">
+              <i class="ph-fill ph-check-square-offset text-spc-gold"></i>最近の状態チェック
+            </h2>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              直感で選ぶだけでOK。最大10個まで（いま <span id="countSel" class="font-bold text-spc-gold text-sm">0</span>/10）。
             </p>
           </div>
-          <div class="hidden sm:flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400">
-            <span class="inline-flex items-center gap-1 rounded-full border border-soft bg-zinc-50 px-3 py-1 dark:bg-zinc-800">業種連動</span>
-            <span class="inline-flex items-center gap-1 rounded-full border border-soft bg-zinc-50 px-3 py-1 dark:bg-zinc-800">選択式</span>
+          <div class="hidden sm:flex items-center gap-2 text-xs font-medium text-slate-500">
+            <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 dark:bg-zinc-800">業種連動</span>
           </div>
         </div>
 
-        <div id="listChecks" class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2"></div>
+        <div id="listChecks" class="grid grid-cols-1 gap-3 sm:grid-cols-2"></div>
 
-        <div class="mt-4">
-          <label class="text-sm font-medium text-zinc-800 dark:text-zinc-200">追加メモ（任意）</label>
-          <textarea id="inpMemo" rows="3" class="ring-brand mt-2 w-full rounded-2xl border border-soft bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm placeholder:text-zinc-400 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
+        <div class="mt-8">
+          <label class="text-sm font-bold text-spc-main dark:text-blue-300 mb-2 block">追加メモ（任意）</label>
+          <textarea id="inpMemo" rows="3" class="ring-brand w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-800 shadow-inner placeholder:text-slate-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-slate-100 transition-all"
             placeholder="例：社内で同じ説明が何度も起きている。会議が長いのに決まらない。"></textarea>
         </div>
 
-        <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <button id="btnGenerate" class="btn-brand ring-brand inline-flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-4 text-sm font-bold shadow-lg transition-transform active:scale-95 sm:w-auto">
-            <i class="ph ph-compass text-xl"></i>
-            まとめて出力する
+        <div class="mt-8 flex flex-col items-center justify-center gap-4 border-t border-slate-100 dark:border-zinc-800 pt-8">
+          <button id="btnGenerate" class="btn-gold ring-brand w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-2xl px-10 py-4 text-base font-bold shadow-lg transition-transform active:scale-95">
+            <i id="genIcon" class="ph-bold ph-magic-wand text-xl"></i>
+            <span>まとめて出力する</span>
           </button>
-          <div class="flex items-center justify-between gap-3 text-xs text-zinc-600 dark:text-zinc-400">
-            <span id="genStatus" class="opacity-80">選んだ内容から、原因と一歩を仮で組み立てます</span>
-          </div>
+          <p id="genStatus" class="text-xs font-bold text-slate-500 dark:text-slate-400">
+            選んだ内容から、原因と次の一歩をAIが組み立てます
+          </p>
         </div>
       </section>
 
-      <section id="outSection" class="rounded-3xl border border-soft bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-        <div class="flex items-start justify-between gap-3">
+      <!-- Output Section -->
+      <section id="outSection" class="rounded-3xl border border-soft bg-white p-6 md:p-8 shadow-sm dark:bg-zinc-900 transition-all">
+        <div class="flex items-start justify-between gap-3 mb-6">
           <div>
-            <h2 class="text-base font-semibold">出力</h2>
-            <p class="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
-              そのままNotebookLMへ貼れます。GPT/Gemini用プロンプトもセットです。
+            <h2 class="text-base font-bold text-spc-main dark:text-blue-300 flex items-center gap-2">
+              <i class="ph-fill ph-file-text text-spc-gold"></i>出力結果
+            </h2>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              そのままNotebookLMやAIに貼れるプロンプトセットです。
             </p>
           </div>
           <div class="flex gap-2">
-            <button id="btnSaveNote" class="ring-brand inline-flex items-center justify-center rounded-2xl border border-soft bg-white px-3 py-2 text-xs shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900">
-              <i class="ph ph-floppy-disk mr-1"></i>保存
+            <button id="btnSaveNote" class="ring-brand inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-600 shadow-sm hover:bg-slate-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-slate-300 dark:hover:bg-zinc-700">
+              <i class="ph-bold ph-floppy-disk mr-1.5"></i>保存
             </button>
-            <button id="btnCopyAll" class="ring-brand inline-flex items-center justify-center rounded-2xl border border-soft bg-white px-3 py-2 text-xs shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900">
-              <i class="ph ph-copy mr-1"></i>全部コピー
+            <button id="btnCopyAll" class="ring-brand inline-flex items-center justify-center rounded-xl bg-spc-main text-white px-4 py-2 text-xs font-bold shadow-sm hover:bg-opacity-90">
+              <i class="ph-bold ph-copy mr-1.5"></i>全部コピー
             </button>
           </div>
         </div>
 
-        <div class="mt-4 flex flex-wrap gap-2">
-          <button class="tabBtn ring-brand rounded-full border border-soft bg-white px-4 py-2 text-xs transition-colors hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-700" data-tab="nb">NotebookLM用ソース</button>
-          <button class="tabBtn ring-brand rounded-full border border-soft bg-white px-4 py-2 text-xs transition-colors hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-700" data-tab="slides">スライド構成（10枚）</button>
-          <button class="tabBtn ring-brand rounded-full border border-soft bg-white px-4 py-2 text-xs transition-colors hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-700" data-tab="info">インフォグラ構造</button>
-          <button class="tabBtn ring-brand rounded-full border border-soft bg-white px-4 py-2 text-xs transition-colors hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-700" data-tab="gpt">GPT用プロンプト</button>
-          <button class="tabBtn ring-brand rounded-full border border-soft bg-white px-4 py-2 text-xs transition-colors hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-700" data-tab="gemini">Gemini用プロンプト</button>
+        <!-- Tabs -->
+        <div class="flex flex-wrap gap-2 pb-2 border-b border-slate-100 dark:border-zinc-800 mb-4">
+          <button class="tabBtn ring-brand rounded-full px-4 py-2 text-xs font-bold transition-all" data-tab="nb">NotebookLM用</button>
+          <button class="tabBtn ring-brand rounded-full px-4 py-2 text-xs font-bold transition-all" data-tab="slides">スライド構成</button>
+          <button class="tabBtn ring-brand rounded-full px-4 py-2 text-xs font-bold transition-all" data-tab="info">インフォグラ構造</button>
+          <button class="tabBtn ring-brand rounded-full px-4 py-2 text-xs font-bold transition-all" data-tab="gpt">GPT用</button>
+          <button class="tabBtn ring-brand rounded-full px-4 py-2 text-xs font-bold transition-all" data-tab="gemini">Gemini用</button>
         </div>
 
-        <div class="mt-4">
-          <div class="flex items-center justify-between gap-2">
-            <div class="text-xs text-zinc-600 dark:text-zinc-400">
-              <span id="tabLabel">NotebookLM用ソース</span>
+        <div>
+          <div class="flex items-center justify-between mb-2 px-1">
+            <span id="tabLabel" class="text-sm font-bold text-spc-main dark:text-blue-300">NotebookLM用ソース</span>
+            <button id="btnCopyTab" class="text-xs font-bold text-spc-sub hover:underline flex items-center">
+              <i class="ph-bold ph-copy mr-1"></i>このタブをコピー
+            </button>
+          </div>
+          <textarea id="outText" class="ring-brand h-80 w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 font-mono text-[13px] leading-relaxed text-slate-800 shadow-inner dark:border-zinc-700 dark:bg-zinc-950 dark:text-slate-200 focus:ring-2 focus:ring-spc-gold/50" spellcheck="false"></textarea>
+        </div>
+      </section>
+
+      <!-- CTA Section -->
+      <section class="rounded-3xl bg-spc-main p-8 md:p-10 shadow-xl relative overflow-hidden text-center md:text-left border border-spc-gold/30">
+        <div class="absolute -top-24 -right-24 w-64 h-64 bg-spc-gold opacity-20 rounded-full blur-3xl pointer-events-none"></div>
+        
+        <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div>
+                <h3 class="text-xl md:text-2xl font-serif font-bold text-white mb-3 tracking-wide">このデモは、気づきの入口です</h3>
+                <p class="text-sm md:text-base leading-relaxed text-slate-300 font-light">
+                    本当に価値が出るのは、御社の言葉に置き換えたとき。<br class="hidden sm:block" />
+                    「この出力をベースに、自社専用版を作りたい」そんな相談から始められます。
+                </p>
             </div>
-            <button id="btnCopyTab" class="ring-brand inline-flex items-center justify-center rounded-2xl border border-soft bg-white px-3 py-2 text-xs shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900">
-              <i class="ph ph-copy mr-1"></i>このタブをコピー
+            <button id="btnConsult" class="btn-gold ring-brand inline-flex w-full md:w-auto items-center justify-center rounded-2xl px-8 py-4 text-base font-bold shadow-[0_8px_20px_rgba(208,169,0,0.3)] transition-transform active:scale-95 shrink-0">
+                <i class="ph-fill ph-chat-circle-text mr-2 text-xl"></i>自社専用版の相談をする
             </button>
-          </div>
-          <textarea id="outText" class="ring-brand mt-2 h-72 w-full rounded-2xl border border-soft bg-zinc-50 px-4 py-3 font-mono text-[12px] leading-relaxed text-zinc-900 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 focus:ring-2 focus:ring-[var(--c-main)]" spellcheck="false"></textarea>
         </div>
       </section>
 
-      <section class="rounded-3xl border border-soft bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-        <h3 class="text-sm font-semibold">このデモは、気づきの入口です</h3>
-        <p class="mt-2 text-sm leading-relaxed text-zinc-700 dark:text-zinc-300">
-          本当に価値が出るのは、御社の言葉に置き換えたとき。<br class="hidden sm:block" />
-          「この出力をベースに、自社専用版を一緒に作りたい」そんな相談から始められます😊
-        </p>
-        <button id="btnConsult" class="btn-sub ring-brand mt-4 inline-flex w-full items-center justify-center rounded-2xl px-6 py-4 text-sm font-bold shadow-lg transition-transform active:scale-95 sm:w-auto">
-          <i class="ph ph-chat-circle-text mr-2 text-lg"></i>自社専用版の相談をする
-        </button>
-      </section>
-
-      <p class="pb-6 text-center text-[11px] text-zinc-500 dark:text-zinc-500">
-        潜在ニーズレーダー（デモ盤）｜保存はこの端末のブラウザ（localStorage）にのみ行われます
+      <p class="pb-6 text-center text-xs text-slate-400 dark:text-slate-500 font-medium">
+        潜在ニーズみっけ（デモ盤）｜保存はこの端末のブラウザ内にのみ行われます
       </p>
     </main>
   </div>
 
+  <!-- 有料版アップグレードモーダル -->
+  <div id="modalPremium" class="fixed inset-0 z-[120] hidden modal flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-md" onclick="closeModal(document.getElementById('modalPremium'))"></div>
+    <div class="modal-content relative w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
+        <button onclick="closeModal(document.getElementById('modalPremium'))" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 transition-colors dark:hover:text-slate-300">
+            <i class="ph-bold ph-x text-xl"></i>
+        </button>
+        
+        <div class="text-center mb-6">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-spc-gold/10 text-spc-gold mb-4 shadow-inner">
+                <i class="ph-fill ph-crown text-4xl"></i>
+            </div>
+            <h3 class="font-serif text-2xl font-bold text-spc-main dark:text-blue-300">有料版のご案内</h3>
+            <p class="mt-3 text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                無料体験（3回）が終了いたしました。<br>引き続きご利用いただくには、有料版のご購入をお願いいたします。
+            </p>
+        </div>
+
+        <div class="space-y-6">
+            <!-- URLの設定：ご自身のStripeリンクに変更してください -->
+            <a href="https://buy.stripe.com/9B628q6iC0AJ3GDf3mcV20x" target="_blank" class="btn-gold w-full flex items-center justify-center rounded-2xl py-4 text-base font-bold shadow-lg transition-transform hover:scale-[1.02] active:scale-95">
+                <i class="ph-bold ph-credit-card mr-2 text-xl"></i>
+                ご購入はこちら（Stripe）
+            </a>
+
+            <div class="border-t border-slate-200 dark:border-zinc-700 pt-6">
+                <p class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-2 text-center">すでにご購入済みの方</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-4 text-center">サンクスメールに記載のパスワードを入力してください。</p>
+                <div class="flex gap-2">
+                    <input id="inpPassword" type="password" placeholder="パスワード (例: spc2026)" class="flex-1 rounded-xl border border-slate-300 bg-slate-50 px-4 py-2.5 text-sm outline-none focus:border-spc-main focus:ring-1 focus:ring-spc-main dark:border-zinc-600 dark:bg-zinc-800 dark:text-slate-200 transition-colors">
+                    <button id="btnUnlock" class="rounded-xl bg-slate-800 px-5 py-2.5 text-sm font-bold text-white hover:bg-slate-900 transition-colors shadow-sm whitespace-nowrap dark:bg-zinc-700 dark:hover:bg-zinc-600">
+                        制限解除
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+
   <!-- Guide Modal -->
-  <div id="modalGuide" class="fixed inset-0 z-40 hidden">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"></div>
-    <div class="absolute inset-x-0 bottom-0 mx-auto w-full max-w-lg rounded-t-3xl border border-soft bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 sm:bottom-auto sm:top-20 sm:rounded-3xl">
-        <div class="flex items-center justify-between gap-3 mb-4">
-            <h3 class="text-xl font-bold flex items-center gap-2">
-                <i class="ph ph-book-open-text text-[var(--c-main)]"></i>
+  <div id="modalGuide" class="fixed inset-0 z-40 hidden modal flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal(document.getElementById('modalGuide'))"></div>
+    <div class="modal-content relative w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
+        <div class="flex items-center justify-between mb-6 border-b border-slate-100 dark:border-zinc-800 pb-4">
+            <h3 class="text-xl font-serif font-bold text-spc-main flex items-center gap-2">
+                <i class="ph-fill ph-book-open-text text-spc-gold"></i>
                 使い方ガイド
             </h3>
-            <button id="btnCloseGuide" class="ring-brand rounded-full bg-zinc-100 p-2 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
-                <i class="ph ph-x text-lg"></i>
+            <button onclick="closeModal(document.getElementById('modalGuide'))" class="rounded-full bg-slate-100 p-2 text-slate-500 hover:bg-slate-200 dark:bg-zinc-800 dark:text-slate-400 dark:hover:bg-zinc-700 transition-colors">
+                <i class="ph-bold ph-x text-lg"></i>
             </button>
         </div>
 
         <div class="space-y-6">
             <div>
-                <h4 class="text-sm font-bold opacity-90">潜在ニーズを「的（マト）」に変える</h4>
-                <p class="mt-2 text-sm leading-relaxed opacity-80">
+                <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">潜在ニーズを「的（マト）」に変える</h4>
+                <p class="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                     「何が課題かわからない」という違和感こそが、実は最大のヒントです。<br>
                     このアプリは、現場のモヤモヤを言語化し、AI/DX活用の焦点を絞り込みます。
                 </p>
             </div>
             
-            <div>
-                <h4 class="text-sm font-bold opacity-90">気づきの4ステップ</h4>
-                <ul class="mt-3 space-y-4">
+            <div class="bg-slate-50 dark:bg-zinc-800/50 p-5 rounded-2xl">
+                <h4 class="text-sm font-bold text-spc-main dark:text-blue-300 mb-4">気づきの4ステップ</h4>
+                <ul class="space-y-4">
                     <li class="flex gap-3">
-                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--c-main)] text-xs font-bold text-white">1</span>
-                        <div class="text-xs leading-relaxed opacity-80 pt-0.5">
-                            <span class="font-bold">違和感を置く</span><br>
-                            「忙しい」「なんとなく不安」など、まだ言葉にならない感覚をそのまま入力してください。
+                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-spc-gold text-xs font-bold text-white shadow-sm">1</span>
+                        <div class="text-xs leading-relaxed text-slate-600 dark:text-slate-400 pt-0.5">
+                            <span class="font-bold text-slate-800 dark:text-slate-200">違和感を置く</span><br>
+                            「忙しい」「なんとなく不安」など、まだ言葉にならない感覚を入力。
                         </div>
                     </li>
                     <li class="flex gap-3">
-                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--c-main)] text-xs font-bold text-white">2</span>
-                        <div class="text-xs leading-relaxed opacity-80 pt-0.5">
-                            <span class="font-bold">兆候を選ぶ</span><br>
-                            「現場あるある」から選ぶことで、見えていない課題の輪郭（ボトルネック）が浮かび上がります。
+                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-spc-gold text-xs font-bold text-white shadow-sm">2</span>
+                        <div class="text-xs leading-relaxed text-slate-600 dark:text-slate-400 pt-0.5">
+                            <span class="font-bold text-slate-800 dark:text-slate-200">兆候を選ぶ</span><br>
+                            「現場あるある」から選ぶことで、見えない課題の輪郭が浮かび上がります。
                         </div>
                     </li>
                     <li class="flex gap-3">
-                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--c-main)] text-xs font-bold text-white">3</span>
-                        <div class="text-xs leading-relaxed opacity-80 pt-0.5">
-                            <span class="font-bold">構造化する</span><br>
-                            ボタン一つで、AIがあなたの入力を分析し、「真の課題」と「解決への道筋」を構造化して出力します。
+                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-spc-gold text-xs font-bold text-white shadow-sm">3</span>
+                        <div class="text-xs leading-relaxed text-slate-600 dark:text-slate-400 pt-0.5">
+                            <span class="font-bold text-slate-800 dark:text-slate-200">構造化する</span><br>
+                            AIが分析し、「真の課題」と「解決への道筋」を構造化して出力します。
                         </div>
                     </li>
                     <li class="flex gap-3">
-                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--c-main)] text-xs font-bold text-white">4</span>
-                        <div class="text-xs leading-relaxed opacity-80 pt-0.5">
-                            <span class="font-bold">次の一歩へ</span><br>
-                            出力された共通言語をたたき台に、具体的な解決策（自社専用版）を相談できます。
+                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-spc-gold text-xs font-bold text-white shadow-sm">4</span>
+                        <div class="text-xs leading-relaxed text-slate-600 dark:text-slate-400 pt-0.5">
+                            <span class="font-bold text-slate-800 dark:text-slate-200">次の一歩へ</span><br>
+                            出力された共通言語をたたき台に、解決策（自社専用版）を相談できます。
                         </div>
                     </li>
                 </ul>
@@ -288,109 +379,70 @@
   </div>
 
   <!-- Settings Modal -->
-  <div id="modalSettings" class="fixed inset-0 z-40 hidden">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"></div>
-    <div class="absolute inset-x-0 bottom-0 mx-auto w-full max-w-3xl rounded-t-3xl border border-soft bg-white p-5 shadow-xl dark:border-zinc-800 dark:bg-zinc-900 sm:bottom-auto sm:top-10 sm:rounded-3xl max-h-[90vh] overflow-y-auto">
-      <div class="flex items-start justify-between gap-3">
-        <div>
-          <h3 class="text-base font-semibold">設定</h3>
-        </div>
-        <button id="btnCloseSettings" class="ring-brand rounded-2xl border border-soft bg-white px-3 py-2 text-sm shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900">閉じる</button>
+  <div id="modalSettings" class="fixed inset-0 z-40 hidden modal flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal(document.getElementById('modalSettings'))"></div>
+    <div class="modal-content relative w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-6 border-b border-slate-100 dark:border-zinc-800 pb-4">
+        <h3 class="text-xl font-serif font-bold text-spc-main flex items-center gap-2">
+            <i class="ph-fill ph-gear-six text-spc-gold"></i>設定
+        </h3>
+        <button onclick="closeModal(document.getElementById('modalSettings'))" class="rounded-full bg-slate-100 p-2 text-slate-500 hover:bg-slate-200 dark:bg-zinc-800 dark:text-slate-400 dark:hover:bg-zinc-700 transition-colors">
+            <i class="ph-bold ph-x text-lg"></i>
+        </button>
       </div>
 
-      <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <!-- Theme Settings -->
-        <div class="rounded-2xl border border-soft p-4 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50">
-            <label class="text-sm font-medium">外観モード</label>
-            <div class="mt-2 flex gap-2">
-                <button id="btnThemeLight" class="flex-1 rounded-xl border border-soft bg-white py-2 text-xs font-medium shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900 transition-colors">
-                    ☀️ ライト
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div class="rounded-2xl border border-slate-200 p-5 bg-slate-50 dark:border-zinc-700 dark:bg-zinc-800/50">
+            <label class="text-sm font-bold text-slate-800 dark:text-slate-200">外観モード</label>
+            <div class="mt-3 flex gap-2">
+                <button id="btnThemeLight" class="flex-1 rounded-xl border border-slate-200 bg-white py-2 text-xs font-bold text-slate-600 shadow-sm hover:border-spc-main dark:border-zinc-600 dark:bg-zinc-800 dark:text-slate-300 transition-colors">
+                    ライト
                 </button>
-                <button id="btnThemeDark" class="flex-1 rounded-xl border border-soft bg-white py-2 text-xs font-medium shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900 transition-colors">
-                    🌙 ダーク
+                <button id="btnThemeDark" class="flex-1 rounded-xl border border-slate-200 bg-white py-2 text-xs font-bold text-slate-600 shadow-sm hover:border-spc-main dark:border-zinc-600 dark:bg-zinc-800 dark:text-slate-300 transition-colors">
+                    ダーク
                 </button>
-                <button id="btnThemeOS" class="flex-1 rounded-xl border border-soft bg-white py-2 text-xs font-medium shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900 transition-colors">
-                    🖥️ 自動
+                <button id="btnThemeOS" class="flex-1 rounded-xl border border-slate-200 bg-white py-2 text-xs font-bold text-slate-600 shadow-sm hover:border-spc-main dark:border-zinc-600 dark:bg-zinc-800 dark:text-slate-300 transition-colors">
+                    自動
                 </button>
             </div>
         </div>
 
-        <div></div> <!-- Spacer for grid layout if needed, or remove -->
-
-        <div class="rounded-2xl border border-soft p-4 dark:border-zinc-800">
-          <label class="text-sm font-medium">業種（必須）</label>
-          <select id="selIndustry" class="ring-brand mt-2 w-full rounded-2xl border border-soft bg-white px-3 py-3 text-sm shadow-sm dark:border-zinc-800 dark:bg-zinc-950 focus:ring-2 focus:ring-[var(--c-main)]">
-            <option selected>製造業</option>
+        <div class="rounded-2xl border border-slate-200 p-5 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+          <label class="text-sm font-bold text-slate-800 dark:text-slate-200">業種（必須）</label>
+          <select id="selIndustry" class="mt-3 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-800 focus:border-spc-main focus:ring-1 focus:ring-spc-main outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-slate-200">
+            <option>製造業</option>
             <option>建設・工務店</option>
             <option>飲食</option>
             <option>美容・サロン</option>
             <option>小売・サービス</option>
             <option>医療・薬局・介護</option>
             <option>士業</option>
-            <option>IT・Web制作</option>
+            <option selected>IT・Web制作</option>
             <option>不動産</option>
             <option>その他</option>
           </select>
-
-          <div class="mt-3">
-            <label class="text-sm font-medium">出力トーン</label>
-            <div class="mt-2 flex flex-wrap gap-2">
-              <button class="toneBtn ring-brand rounded-full border border-soft bg-white px-4 py-2 text-xs transition-colors hover:bg-zinc-50" data-tone="やさしい">やさしい</button>
-              <button class="toneBtn ring-brand rounded-full border border-soft bg-white px-4 py-2 text-xs transition-colors hover:bg-zinc-50" data-tone="ビジネス">ビジネス</button>
-              <button class="toneBtn ring-brand rounded-full border border-soft bg-white px-4 py-2 text-xs transition-colors hover:bg-zinc-50" data-tone="熱量">熱量</button>
-            </div>
-          </div>
         </div>
 
-        <div class="rounded-2xl border border-soft p-4 dark:border-zinc-800">
-          <label class="text-sm font-medium">配色3色（任意）</label>
-          <p class="mt-1 text-xs text-zinc-600 dark:text-zinc-400">メイン/サブ/アクセントを変えると、UIとプロンプトに反映されます。</p>
-
-          <div class="mt-3 grid grid-cols-1 gap-3">
-            <div class="flex items-center justify-between gap-3">
-              <div class="min-w-0">
-                <div class="text-xs text-zinc-600 dark:text-zinc-400">メイン</div>
-                <input id="hexMain" class="ring-brand mt-1 w-full rounded-2xl border border-soft bg-white px-3 py-2 text-sm shadow-sm dark:border-zinc-800 dark:bg-zinc-950" value="#020562" />
-              </div>
-              <input id="pickMain" type="color" class="h-10 w-12 rounded-xl border border-soft bg-white p-1 dark:border-zinc-800 dark:bg-zinc-950" value="#020562" />
+        <div class="sm:col-span-2 rounded-2xl border border-slate-200 p-5 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+            <label class="text-sm font-bold text-slate-800 dark:text-slate-200 block mb-3">出力トーン（誰に見せるか）</label>
+            <div class="flex flex-wrap gap-2">
+              <button class="toneBtn rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-xs font-bold text-slate-600 hover:border-spc-main transition-colors dark:border-zinc-700 dark:bg-zinc-800 dark:text-slate-300" data-tone="現場向け（共感）">現場向け（共感）</button>
+              <button class="toneBtn rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-xs font-bold text-slate-600 hover:border-spc-main transition-colors dark:border-zinc-700 dark:bg-zinc-800 dark:text-slate-300" data-tone="経営層向け（論理）">経営層向け（論理）</button>
+              <button class="toneBtn rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-xs font-bold text-slate-600 hover:border-spc-main transition-colors dark:border-zinc-700 dark:bg-zinc-800 dark:text-slate-300" data-tone="推進用（熱意）">推進用（熱意）</button>
             </div>
-
-            <div class="flex items-center justify-between gap-3">
-              <div class="min-w-0">
-                <div class="text-xs text-zinc-600 dark:text-zinc-400">サブ</div>
-                <input id="hexSub" class="ring-brand mt-1 w-full rounded-2xl border border-soft bg-white px-3 py-2 text-sm shadow-sm dark:border-zinc-800 dark:bg-zinc-950" value="#22AEC9" />
-              </div>
-              <input id="pickSub" type="color" class="h-10 w-12 rounded-xl border border-soft bg-white p-1 dark:border-zinc-800 dark:bg-zinc-950" value="#22AEC9" />
-            </div>
-
-            <div class="flex items-center justify-between gap-3">
-              <div class="min-w-0">
-                <div class="text-xs text-zinc-600 dark:text-zinc-400">アクセント</div>
-                <input id="hexAccent" class="ring-brand mt-1 w-full rounded-2xl border border-soft bg-white px-3 py-2 text-sm shadow-sm dark:border-zinc-800 dark:bg-zinc-950" value="#FEFEFE" />
-              </div>
-              <input id="pickAccent" type="color" class="h-10 w-12 rounded-xl border border-soft bg-white p-1 dark:border-zinc-800 dark:bg-zinc-950" value="#FEFEFE" />
-            </div>
-          </div>
-
-          <div class="mt-4 flex items-center gap-2">
-            <button id="btnResetColors" class="ring-brand rounded-2xl border border-soft bg-white px-3 py-2 text-xs shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900">
-              デフォルトに戻す
-            </button>
-          </div>
         </div>
         
-        <!-- Data Actions -->
-        <div class="sm:col-span-2 border-t border-soft pt-5 dark:border-zinc-800">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="sm:col-span-2 border-t border-slate-100 pt-6 mt-2 dark:border-zinc-800">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <span class="text-sm font-medium">データ操作</span>
-                    <p class="text-xs text-zinc-600 dark:text-zinc-400">入力リセット / テストデータ投入</p>
+                    <span class="text-sm font-bold text-slate-800 dark:text-slate-200">データ操作</span>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">入力のクリアやテスト用データの投入</p>
                 </div>
                 <div class="flex gap-2">
-                    <button id="btnDemo" class="ring-brand inline-flex items-center justify-center rounded-xl border border-soft bg-white px-4 py-2 text-sm shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900">
+                    <button id="btnDemo" class="rounded-xl border border-spc-main bg-white px-5 py-2 text-sm font-bold text-spc-main hover:bg-spc-main/5 dark:bg-zinc-900 transition-colors">
                         デモデータ
                     </button>
-                    <button id="btnClear" class="ring-brand inline-flex items-center justify-center rounded-xl border border-soft bg-white px-4 py-2 text-sm shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900">
+                    <button id="btnClear" class="rounded-xl border border-slate-300 bg-slate-100 px-5 py-2 text-sm font-bold text-slate-600 hover:bg-slate-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-slate-300 transition-colors">
                         クリア
                     </button>
                 </div>
@@ -401,70 +453,89 @@
   </div>
 
   <!-- Confirm Modal -->
-  <div id="modalConfirm" class="fixed inset-0 z-[70] hidden">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"></div>
-    <div class="absolute inset-x-0 bottom-0 mx-auto w-full max-w-sm rounded-t-3xl border border-soft bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 sm:rounded-3xl">
-        <div class="text-center">
-            <div id="confirmIcon" class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-zinc-100 text-2xl dark:bg-zinc-800">
-                ⚠️
-            </div>
-            <h3 id="confirmTitle" class="text-lg font-bold">確認</h3>
-            <p id="confirmMsg" class="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">本当に実行しますか？</p>
-            <div class="mt-6 flex gap-3">
-                <button id="btnConfirmCancel" class="flex-1 rounded-xl border border-soft bg-white px-4 py-3 text-sm font-bold shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900">
-                    キャンセル
-                </button>
-                <button id="btnConfirmOk" class="flex-1 rounded-xl bg-[var(--c-main)] px-4 py-3 text-sm font-bold text-white shadow-lg transition-transform active:scale-95">
-                    実行する
-                </button>
-            </div>
+  <div id="modalConfirm" class="fixed inset-0 z-[70] hidden modal flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+    <div class="modal-content relative w-full max-w-sm rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 text-center">
+        <div id="confirmIcon" class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-2xl dark:bg-zinc-800">
+            ⚠️
+        </div>
+        <h3 id="confirmTitle" class="text-lg font-bold text-slate-800 dark:text-slate-100">確認</h3>
+        <p id="confirmMsg" class="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">本当に実行しますか？</p>
+        <div class="mt-8 flex gap-3">
+            <button id="btnConfirmCancel" class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-slate-300 transition-colors">
+                キャンセル
+            </button>
+            <button id="btnConfirmOk" class="flex-1 rounded-xl bg-spc-main px-4 py-3 text-sm font-bold text-white shadow-md active:scale-95 transition-transform">
+                実行する
+            </button>
         </div>
     </div>
   </div>
 
-  <!-- Consult Modal -->
-  <div id="modalConsult" class="fixed inset-0 z-50 hidden">
-    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"></div>
-    <div class="absolute inset-x-0 bottom-0 mx-auto w-full max-w-3xl rounded-t-3xl border border-soft bg-white p-5 shadow-xl dark:border-zinc-800 dark:bg-zinc-900 sm:bottom-auto sm:top-16 sm:rounded-3xl">
-      <div class="flex items-start justify-between gap-3">
-        <div>
-          <h3 class="text-base font-semibold">自社専用版の相談</h3>
-          <p class="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
-            このデモ出力を貼って送れます。売り込みじゃなく、整理から一緒にやる感じでOKです😊
-          </p>
-        </div>
-        <button id="btnCloseConsult" class="ring-brand rounded-2xl border border-soft bg-white px-3 py-2 text-sm shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900">閉じる</button>
-      </div>
+  <!-- Consult Modal (Rich Email UI) -->
+  <div id="modalConsult" class="fixed inset-0 z-50 hidden modal flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal(document.getElementById('modalConsult'))"></div>
+    <div class="modal-content relative w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-8 md:p-10 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
+      <button onclick="closeModal(document.getElementById('modalConsult'))" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+          <i class="ph-bold ph-x text-xl"></i>
+      </button>
+      
+      <h3 class="font-serif text-2xl font-bold mb-8 text-center text-spc-main dark:text-blue-300">送信方法を選んでください</h3>
+      
+      <div class="space-y-4">
+          <!-- Option 1: Default Mailer -->
+          <button id="btnMailConsult" class="w-full flex items-center p-5 border-2 border-slate-100 hover:border-spc-main hover:bg-slate-50 dark:border-zinc-700 dark:hover:border-blue-400 dark:hover:bg-zinc-800 rounded-2xl transition-all group text-left bg-white dark:bg-zinc-900 shadow-sm">
+              <div class="w-14 h-14 bg-slate-100 text-spc-main rounded-full flex items-center justify-center flex-shrink-0 mr-5 group-hover:bg-spc-main group-hover:text-white dark:bg-zinc-800 dark:text-blue-400 transition-colors">
+                  <i class="ph-fill ph-envelope-simple text-2xl"></i>
+              </div>
+              <div>
+                  <p class="font-bold text-slate-800 dark:text-slate-100 text-lg">メールソフトで送る</p>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Outlook, Macメールなど設定済みの方</p>
+              </div>
+          </button>
 
-      <div class="mt-4">
-        <label class="text-sm font-medium">問い合わせ文テンプレ</label>
-        <textarea id="consultText" class="ring-brand mt-2 h-48 w-full rounded-2xl border border-soft bg-zinc-50 px-4 py-3 text-[12px] leading-relaxed text-zinc-900 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 focus:ring-2 focus:ring-[var(--c-main)]" spellcheck="false"></textarea>
-        
-        <div class="mt-4 flex flex-col sm:flex-row gap-2">
-            <button id="btnCopyConsult" class="ring-brand inline-flex w-full items-center justify-center rounded-xl border border-soft bg-white px-3 py-3 text-xs font-bold shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900 sm:flex-1">
-              <i class="ph ph-copy mr-2 text-base"></i>コピーのみ
-            </button>
-            <button id="btnMailConsult" class="btn-brand ring-brand inline-flex w-full items-center justify-center rounded-xl px-3 py-3 text-xs font-bold text-white shadow-md transition-transform hover:scale-[1.02] sm:flex-1">
-                <i class="ph ph-envelope-simple mr-2 text-base"></i>コピーしてメール起動
-            </button>
-            <button id="btnGmailConsult" class="ring-brand inline-flex w-full items-center justify-center rounded-xl bg-red-500 text-white px-3 py-3 text-xs font-bold shadow-md transition-transform hover:scale-[1.02] hover:bg-red-600 sm:flex-1">
-                <i class="ph ph-google-logo mr-2 text-base"></i>コピーしてGmail起動
-            </button>
-        </div>
+          <!-- Option 2: Gmail -->
+          <button id="btnGmailConsult" class="w-full flex items-center p-5 border-2 border-slate-100 hover:border-red-500 hover:bg-red-50 dark:border-zinc-700 dark:hover:border-red-500 dark:hover:bg-zinc-800 rounded-2xl transition-all group text-left bg-white dark:bg-zinc-900 shadow-sm">
+              <div class="w-14 h-14 bg-red-50 text-red-500 rounded-full flex items-center justify-center flex-shrink-0 mr-5 group-hover:bg-red-500 group-hover:text-white dark:bg-red-900/20 transition-colors">
+                  <i class="ph-fill ph-google-logo text-2xl"></i>
+              </div>
+              <div>
+                  <p class="font-bold text-slate-800 dark:text-slate-100 text-lg">Gmailで送る</p>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">ブラウザでGmailをお使いの方</p>
+              </div>
+          </button>
+
+          <!-- Option 3: Copy Text -->
+          <div class="border-t border-slate-100 dark:border-zinc-800 mt-8 pt-6">
+              <p class="text-sm font-bold text-spc-main dark:text-blue-300 mb-3 pl-1">うまくいかない場合は...</p>
+              <div class="bg-slate-50 dark:bg-zinc-950 p-5 rounded-2xl border border-slate-200 dark:border-zinc-800">
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+                      以下の本文をコピーして、使い慣れたメール等の本文に貼り付けて <span class="font-bold text-spc-main dark:text-blue-400">spc@smileplusctg.com</span> までお送りください。
+                  </p>
+                  <textarea id="consultText" rows="4" readonly class="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl p-3 text-xs mb-4 focus:ring-2 focus:ring-spc-gold outline-none text-slate-600 dark:text-slate-300 resize-none shadow-inner" onClick="this.select()"></textarea>
+                  
+                  <button id="btnCopyConsult" class="w-full bg-slate-800 hover:bg-black dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold py-3.5 rounded-xl text-sm transition-colors shadow-md flex justify-center items-center gap-2">
+                      <i class="ph-bold ph-copy text-base"></i>
+                      <span id="copyBtnText">本文をコピーする</span>
+                  </button>
+              </div>
+          </div>
       </div>
     </div>
   </div>
 
   <!-- Toast -->
   <div class="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 pointer-events-none">
-    <div id="toast" class="toast rounded-2xl bg-zinc-900 px-4 py-3 text-sm text-white shadow-lg backdrop-blur">
-      コピーしました
+    <div id="toast" class="toast rounded-full bg-slate-800/90 dark:bg-white/90 px-6 py-3 text-sm font-bold text-white dark:text-slate-900 shadow-xl backdrop-blur flex items-center gap-2">
+      <i class="ph-fill ph-check-circle text-green-400"></i>
+      <span id="toastMsg">コピーしました</span>
     </div>
   </div>
 
 <script>
 (function() {
-  const LS_KEY = "spc_takara_compass_v1";
+  const LS_KEY = "spc_takara_compass_v2";
+  const SECRET_PASSWORD = "spc2026"; // 有料版制限解除用のパスワード
 
   const industries = [
     "製造業","建設・工務店","飲食","美容・サロン","小売・サービス","医療・薬局・介護","士業","IT・Web制作","不動産","その他"
@@ -536,7 +607,7 @@
       "見積もりの拾い出しが手作業で時間がかかる",
       "追加工事の請求漏れが起きている",
       "工程変更の連絡が全員に行き渡らない",
-      "職人の手配ミスが直前で発覚する",
+      "職人の手配ミスが直前発覚する",
       "安全書類の作成で同じことを何度も書く",
       "過去の施工事例やノウハウが共有されない",
       "若手が育つ前に現場の忙しさで辞めてしまう"
@@ -600,7 +671,6 @@
   };
 
   function getChecks(ind) {
-    // Other industries fallback
     const base = [
       "忙しくて考える前で止まってしまう",
       "やった方がいいのは分かっているが後回し",
@@ -615,34 +685,24 @@
       "お客様の本音が拾いきれていない",
       "改善が続かない"
     ];
-    // Give slight flavor per industry name
     if (ind === "建設・工務店" && !checksByIndustry[ind]) base[0] = "現場が忙しく、段取りが後回しになる";
     return checksByIndustry[ind] || base;
   }
 
   // UI elements
   const badgeIndustry = document.getElementById("badgeIndustry");
-  
-  // Header Buttons
   const btnSettings = document.getElementById("btnSettings");
   const btnGuide = document.getElementById("btnGuide");
 
   // Modals
   const modalSettings = document.getElementById("modalSettings");
-  const btnCloseSettings = document.getElementById("btnCloseSettings");
   const modalGuide = document.getElementById("modalGuide");
-  const btnCloseGuide = document.getElementById("btnCloseGuide");
+  const modalConsult = document.getElementById("modalConsult");
+  const modalConfirm = document.getElementById("modalConfirm");
+  const modalPremium = document.getElementById("modalPremium");
 
   const selIndustry = document.getElementById("selIndustry");
   const toneButtons = Array.from(document.querySelectorAll(".toneBtn"));
-
-  const hexMain = document.getElementById("hexMain");
-  const hexSub = document.getElementById("hexSub");
-  const hexAccent = document.getElementById("hexAccent");
-  const pickMain = document.getElementById("pickMain");
-  const pickSub = document.getElementById("pickSub");
-  const pickAccent = document.getElementById("pickAccent");
-  const btnResetColors = document.getElementById("btnResetColors");
 
   // Theme Buttons
   const btnThemeLight = document.getElementById("btnThemeLight");
@@ -650,7 +710,7 @@
   const btnThemeOS = document.getElementById("btnThemeOS");
 
   const inpTheme = document.getElementById("inpTheme");
-  const selThemeTemplate = document.getElementById("selThemeTemplate"); // New Dropdown
+  const selThemeTemplate = document.getElementById("selThemeTemplate");
   const inpMemo = document.getElementById("inpMemo");
   const listChecks = document.getElementById("listChecks");
   const countSel = document.getElementById("countSel");
@@ -668,17 +728,18 @@
   const btnSaveNote = document.getElementById("btnSaveNote");
 
   const btnConsult = document.getElementById("btnConsult");
-  const modalConsult = document.getElementById("modalConsult");
-  const btnCloseConsult = document.getElementById("btnCloseConsult");
+  
+  // Consult Modal Content
   const consultText = document.getElementById("consultText");
   const btnCopyConsult = document.getElementById("btnCopyConsult");
+  const copyBtnText = document.getElementById("copyBtnText");
   const btnMailConsult = document.getElementById("btnMailConsult");
   const btnGmailConsult = document.getElementById("btnGmailConsult");
 
   const toast = document.getElementById("toast");
+  const toastMsg = document.getElementById("toastMsg");
 
   // Confirm Modal Elements
-  const modalConfirm = document.getElementById("modalConfirm");
   const confirmTitle = document.getElementById("confirmTitle");
   const confirmMsg = document.getElementById("confirmMsg");
   const confirmIcon = document.getElementById("confirmIcon");
@@ -688,23 +749,25 @@
   // State
   let state = {
     industry: "製造業",
-    tone: "やさしい",
-    colors: { main:"#020562", sub:"#22AEC9", accent:"#FEFEFE" },
-    darkMode: null, // null=follow OS, true=dark, false=light
+    tone: "現場向け（共感）",
+    colors: { main:"#223670", sub:"#D0A900", accent:"#FEFEFE" },
+    darkMode: null,
     themeText: "まだ言葉になっていない困りごとを見つけたい",
     memo: "",
     selected: [],
     activeTab: "nb",
-    outputs: { nb:"", slides:"", info:"", gpt:"", gemini:"" }
+    outputs: { nb:"", slides:"", info:"", gpt:"", gemini:"" },
+    usageCount: 0,
+    isPremium: false
   };
   
-  let onConfirmAction = null; // Callback for confirm modal
+  let onConfirmAction = null;
 
   // Helpers
   function showToast(msg="コピーしました") {
-    toast.textContent = msg;
+    toastMsg.textContent = msg;
     toast.classList.add("show");
-    setTimeout(() => toast.classList.remove("show"), 1300);
+    setTimeout(() => toast.classList.remove("show"), 2000);
   }
 
   function clampHex(v) {
@@ -716,22 +779,19 @@
   }
 
   function applyColors() {
-    document.documentElement.style.setProperty("--c-main", state.colors.main);
-    document.documentElement.style.setProperty("--c-sub", state.colors.sub);
-    document.documentElement.style.setProperty("--c-accent", state.colors.accent);
+    if (!state.colors) return;
+    document.documentElement.style.setProperty("--c-main", state.colors.main || '#223670');
+    document.documentElement.style.setProperty("--c-sub", state.colors.sub || '#D0A900');
+    document.documentElement.style.setProperty("--c-accent", state.colors.accent || '#FFFFFF');
   }
 
   function applyThemeMode() {
     const root = document.documentElement;
     root.classList.remove("dark");
     
-    // Update Button States
     [btnThemeLight, btnThemeDark, btnThemeOS].forEach(b => {
-        b.classList.remove("bg-[var(--c-main)]");
-        b.classList.remove("text-white");
-        b.classList.remove("border-transparent");
-        // Reset base styles
-        b.classList.add("bg-white", "text-zinc-900", "dark:bg-zinc-950", "dark:text-zinc-100");
+        b.classList.remove("border-spc-main", "text-spc-main", "bg-spc-main/5");
+        b.classList.add("border-slate-200", "text-slate-600");
     });
 
     let activeBtn = btnThemeOS;
@@ -748,11 +808,45 @@
       isDark = false;
     }
 
-    // Activate Button
-    activeBtn.classList.remove("bg-white", "text-zinc-900", "dark:bg-zinc-950", "dark:text-zinc-100");
-    activeBtn.classList.add("bg-[var(--c-main)]", "text-white", "border-transparent");
+    activeBtn.classList.remove("border-slate-200", "text-slate-600");
+    activeBtn.classList.add("border-spc-main", "text-spc-main", "bg-spc-main/5");
 
     if (isDark) root.classList.add("dark");
+  }
+
+  function updateBanner() {
+    const banner = document.getElementById("premiumBanner");
+    const icon = document.getElementById("bannerIcon");
+    const text = document.getElementById("bannerText");
+    
+    if (state.isPremium) {
+      banner.style.display = "none";
+      document.body.classList.remove("pt-11");
+      return;
+    } else {
+      banner.style.display = "flex";
+      document.body.classList.add("pt-11");
+    }
+
+    banner.classList.remove("bg-spc-gold", "text-white", "bg-red-500", "hover:bg-red-600");
+    
+    if (state.usageCount === 0) {
+      banner.classList.add("bg-spc-gold", "text-white");
+      icon.textContent = "🎁";
+      text.textContent = "今なら3回まで無料でお試しいただけます（登録不要）";
+    } else if (state.usageCount === 1) {
+      banner.classList.add("bg-spc-gold", "text-white");
+      icon.textContent = "🎁";
+      text.textContent = "無料体験 残り2回（全3回）";
+    } else if (state.usageCount === 2) {
+      banner.classList.add("bg-spc-gold", "text-white");
+      icon.textContent = "🎁";
+      text.textContent = "無料体験 残り1回（全3回）";
+    } else {
+      banner.classList.add("bg-red-500", "text-white", "hover:bg-red-600");
+      icon.textContent = "⚠️";
+      text.textContent = "無料体験が終了しました ご購入はこちら→";
+    }
   }
 
   function saveLS() {
@@ -773,13 +867,12 @@
     tabButtons.forEach(b => {
       const isOn = b.dataset.tab === tab;
       
-      // Reset styling
-      b.classList.remove("bg-[var(--c-main)]", "text-white", "border-transparent");
-      b.classList.add("bg-white", "text-zinc-900", "border-soft", "dark:bg-zinc-900", "dark:text-zinc-100", "dark:border-zinc-700");
+      b.classList.remove("bg-spc-main", "text-white", "border-transparent");
+      b.classList.add("bg-white", "text-slate-600", "border-slate-200", "dark:bg-zinc-800", "dark:text-slate-300", "dark:border-zinc-700");
 
       if (isOn) {
-        b.classList.remove("bg-white", "text-zinc-900", "border-soft", "dark:bg-zinc-900", "dark:text-zinc-100", "dark:border-zinc-700");
-        b.classList.add("bg-[var(--c-main)]", "text-white", "border-transparent");
+        b.classList.remove("bg-white", "text-slate-600", "border-slate-200", "dark:bg-zinc-800", "dark:text-slate-300", "dark:border-zinc-700");
+        b.classList.add("bg-spc-main", "text-white", "border-transparent", "shadow-md");
       }
     });
     outText.value = state.outputs[tab] || "";
@@ -794,20 +887,19 @@
     items.forEach((txt, idx) => {
       const id = "chk_" + idx;
       const wrap = document.createElement("label");
-      wrap.className = "flex cursor-pointer items-start gap-3 rounded-2xl border border-soft bg-white px-4 py-3 text-sm shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900 transition-colors";
+      wrap.className = "flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm shadow-sm hover:border-spc-main/50 transition-all dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-blue-400/50";
       
-      // Styling for checked state
       if (selectedSet.has(txt)) {
-        wrap.classList.add("border-[var(--c-main)]", "bg-indigo-50/10", "dark:bg-indigo-900/10");
-        wrap.classList.remove("border-soft");
+        wrap.classList.add("border-spc-main", "bg-indigo-50/50", "dark:bg-indigo-900/20", "dark:border-blue-400");
+        wrap.classList.remove("border-slate-200");
       }
 
       wrap.innerHTML = `
-        <div class="relative flex items-center">
-          <input id="${id}" type="checkbox" class="peer h-4 w-4 rounded border-soft text-[var(--c-main)] focus:ring-[var(--c-main)]" />
+        <div class="relative flex items-center pt-0.5">
+          <input id="${id}" type="checkbox" class="peer h-5 w-5 rounded border-slate-300 text-spc-main focus:ring-spc-main dark:border-zinc-600 dark:bg-zinc-700 transition-colors" />
         </div>
         <div class="min-w-0">
-          <div class="text-zinc-900 dark:text-zinc-100 font-medium ${selectedSet.has(txt) ? 'text-[var(--c-main)] dark:text-[var(--c-sub)]' : ''}">${escapeHtml(txt)}</div>
+          <div class="text-slate-800 dark:text-slate-200 font-bold leading-snug ${selectedSet.has(txt) ? 'text-spc-main dark:text-blue-300' : ''}">${escapeHtml(txt)}</div>
         </div>
       `;
       const inp = wrap.querySelector("input");
@@ -825,7 +917,7 @@
           state.selected = state.selected.filter(x => x !== txt);
         }
         countSel.textContent = state.selected.length;
-        renderChecks(); // Re-render to update styles
+        renderChecks(); 
         saveLS();
       });
 
@@ -844,28 +936,34 @@
       .replaceAll("'","&#39;");
   }
 
-  function openModal(el) { el.classList.remove("hidden"); }
-  function closeModal(el) { el.classList.add("hidden"); }
+  // Modal Control
+  function openModal(el) { 
+      el.classList.remove("hidden"); 
+      setTimeout(() => el.classList.add("show"), 10);
+  }
+  function closeModal(el) { 
+      el.classList.remove("show");
+      setTimeout(() => el.classList.add("hidden"), 300);
+  }
+  window.closeModal = closeModal; // Make globally accessible for inline onclicks
 
-  // --- Confirm Modal Logic ---
   function openConfirm(title, msg, isDanger, callback) {
     confirmTitle.textContent = title;
     confirmMsg.innerHTML = msg.replace(/\n/g, '<br>');
     onConfirmAction = callback;
     
-    // Danger Styling
     if(isDanger) {
-        btnConfirmOk.classList.remove("bg-[var(--c-main)]");
+        btnConfirmOk.classList.remove("bg-spc-main");
         btnConfirmOk.classList.add("bg-red-500");
-        confirmIcon.textContent = "🗑️";
-        confirmIcon.classList.add("bg-red-100");
-        confirmIcon.classList.remove("bg-zinc-100");
+        confirmIcon.innerHTML = "🗑️";
+        confirmIcon.classList.add("bg-red-100", "dark:bg-red-900/30");
+        confirmIcon.classList.remove("bg-slate-100", "dark:bg-zinc-800");
     } else {
         btnConfirmOk.classList.remove("bg-red-500");
-        btnConfirmOk.classList.add("bg-[var(--c-main)]");
-        confirmIcon.textContent = "✨";
-        confirmIcon.classList.remove("bg-red-100");
-        confirmIcon.classList.add("bg-zinc-100");
+        btnConfirmOk.classList.add("bg-spc-main");
+        confirmIcon.innerHTML = "✨";
+        confirmIcon.classList.remove("bg-red-100", "dark:bg-red-900/30");
+        confirmIcon.classList.add("bg-slate-100", "dark:bg-zinc-800");
     }
     
     openModal(modalConfirm);
@@ -877,10 +975,6 @@
     closeModal(modalConfirm);
   });
   
-  modalConfirm.addEventListener("click", (e) => {
-    if (e.target === modalConfirm.querySelector(".absolute.inset-0")) closeModal(modalConfirm);
-  });
-
   function buildCauseAndNext(selected, memo) {
     const s = selected.join(" / ");
     const causes = [];
@@ -933,23 +1027,22 @@
     const selected = state.selected.slice(0,10);
     const { top3, effects, firstStep } = buildCauseAndNext(selected, memo);
 
-    const palette = `メイン：${state.colors.main}\nサブ：${state.colors.sub}\nアクセント：${state.colors.accent}`;
-
     const target = (ind === "士業") ? "所長・担当者・顧問先対応メンバー" :
                    (ind === "製造業") ? "現場リーダー・品質・管理部門" :
                    (ind === "飲食") ? "店長・スタッフ・運営担当" :
                    (ind === "IT・Web制作") ? "PM・開発・営業・経営者" : "経営者・現場担当";
 
     const purpose = "潜在ニーズ（課題の手前）を言語化し、次の一歩を決めやすくする";
-    const bg = (tone === "熱量")
+    
+    const bg = (tone.includes("熱意"))
       ? "忙しいのは当たり前。だからこそ、考える前で止まる時間を減らしたい。"
-      : (tone === "ビジネス")
+      : (tone.includes("論理"))
       ? "忙しさと情報分散により意思決定が遅れ、手戻りや品質ブレが発生しやすい。"
       : "忙しくて整理できない、でも放置するとしんどい。そんな所から始める。";
 
     // NotebookLM source
     const nb = [
-      "潜在ニーズレーダー（NotebookLM用ソース）",
+      "潜在ニーズみっけ（NotebookLM用ソース）",
       "",
       "1. テーマ",
       `- ${theme}`,
@@ -986,7 +1079,7 @@
 
     // Slides (10)
     const slides = [
-      "潜在ニーズレーダー（スライド構成 10枚）",
+      "潜在ニーズみっけ（スライド構成 10枚）",
       "",
       "1) タイトル",
       `- ${theme}`,
@@ -1051,7 +1144,7 @@
 
     // Infographic structure
     const info = [
-      "潜在ニーズレーダー（インフォグラ構造ソース）",
+      "潜在ニーズみっけ（インフォグラ構造ソース）",
       "",
       "左：現場の状態",
       ...(selected.length ? selected.slice(0,4).map(x=>`- ${x}`) : ["- 忙しくて整理が後回し"]),
@@ -1067,8 +1160,7 @@
       "- スライド構成（10枚）",
       "- GPT/Geminiプロンプト",
       "",
-      "補足：色指定（3原色）",
-      palette
+      "補足：色指定（メイン：#223670 / サブ：#D0A900 / アクセント：白）"
     ].join("\n");
 
     // GPT prompt
@@ -1085,8 +1177,7 @@
       "- 見出し＋短文＋箇条書き中心",
       "- 断定しすぎず、現場の共感が出る言い方にする",
       "",
-      "配色条件（必ず反映）",
-      palette,
+      "配色条件（必ず反映：メイン#223670 / サブ#D0A900 / アクセント白）",
       "",
       "入力（整理結果）",
       "-----",
@@ -1113,8 +1204,7 @@
       "- 日本語はやさしく、専門用語は使わない",
       "- 余白のある短文で、見出しを短く",
       "",
-      "配色（必ず反映）",
-      palette,
+      "配色（必ず反映：メイン#223670 / サブ#D0A900 / アクセント白）",
       "",
       "入力（整理結果）",
       "-----",
@@ -1139,7 +1229,7 @@
     const tone = state.tone;
 
     const txt = [
-      "件名：潜在ニーズレーダー（デモ）出力をもとに、自社専用版の相談",
+      "件名：潜在ニーズみっけ（デモ）出力をもとに、自社専用版の相談",
       "",
       "こんにちは。デモで出力した内容を貼ります。",
       "この内容をベースに、当社の言葉に置き換えた「自社専用版（スライド/図/プロンプト）」を一緒に作りたいです。",
@@ -1165,49 +1255,99 @@
 
   // Actions
   function doGenerate() {
+    // プレミアム制限チェック
+    if (!state.isPremium && state.usageCount >= 3) {
+      openModal(document.getElementById('modalPremium'));
+      return;
+    }
+
     state.themeText = inpTheme.value;
     state.memo = inpMemo.value;
     saveLS();
 
-    genStatus.textContent = "出力中…";
-    btnGenerate.disabled = true;
-    btnGenerate.classList.add("opacity-80");
+    const btn = btnGenerate;
+    const icon = document.getElementById("genIcon");
+    const originalIconClass = icon.className;
+
+    // Loading State
+    btn.disabled = true;
+    btn.classList.add("opacity-80");
+    icon.className = "ph-bold ph-spinner animate-spin text-xl";
+
+    const steps = [
+      "現場の声を分析中…",
+      "ボトルネックを特定中…",
+      "次の一手を設計中…"
+    ];
+    let stepIdx = 0;
+    genStatus.textContent = steps[stepIdx];
+    
+    const interval = setInterval(() => {
+      stepIdx++;
+      if(stepIdx < steps.length) {
+        genStatus.textContent = steps[stepIdx];
+      }
+    }, 800);
 
     setTimeout(() => {
+      clearInterval(interval);
       buildOutputs();
       setActiveTab(state.activeTab || "nb");
       setConsultTemplate();
-      btnGenerate.disabled = false;
-      btnGenerate.classList.remove("opacity-80");
+      
+      // Restore State
+      btn.disabled = false;
+      btn.classList.remove("opacity-80");
+      icon.className = originalIconClass;
       genStatus.textContent = "出力できました。コピーして使えます😊";
+      
       outSection.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 800);
+
+      // 使用回数の加算
+      if (!state.isPremium) {
+        state.usageCount++;
+        saveLS();
+        updateBanner();
+      }
+    }, steps.length * 800);
   }
 
-  // Updated Robust Copy Function (Based on Reference)
-  function copyText(txt) {
-    // Create a temporary element to handle copy robustly (like reference file)
+  // Updated Robust Copy Function
+  function copyText(txt, buttonElement = null) {
     const ta = document.createElement("textarea");
     ta.value = txt;
     ta.style.position = "fixed";
     ta.style.left = "-9999px";
     document.body.appendChild(ta);
     ta.select();
-    ta.setSelectionRange(0, 99999); // For mobile devices
+    ta.setSelectionRange(0, 99999);
 
     const success = () => {
         document.body.removeChild(ta);
-        showToast("コピーしました");
+        
+        if (buttonElement && buttonElement.id === 'btnCopyConsult') {
+            const originalHtml = buttonElement.innerHTML;
+            buttonElement.innerHTML = '<i class="ph-bold ph-check text-base"></i><span>コピー完了！</span>';
+            buttonElement.classList.add('bg-spc-gold', 'text-white');
+            buttonElement.classList.remove('bg-slate-800', 'hover:bg-black', 'dark:bg-slate-700');
+            
+            setTimeout(() => {
+                buttonElement.innerHTML = originalHtml;
+                buttonElement.classList.remove('bg-spc-gold', 'text-white');
+                buttonElement.classList.add('bg-slate-800', 'hover:bg-black', 'dark:bg-slate-700');
+            }, 2000);
+        } else {
+            showToast("コピーしました");
+        }
     };
 
     const fail = () => {
         document.body.removeChild(ta);
-        alert("コピーに失敗しました。手動でコピーしてください。");
+        alert("自動コピーがブロックされました。手動でコピーしてください。");
     };
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(txt).then(success).catch(() => {
-            // Fallback to execCommand if clipboard API fails
             try {
                 const successful = document.execCommand('copy');
                 if (successful) success(); else fail();
@@ -1216,7 +1356,6 @@
             }
         });
     } else {
-        // Fallback for older browsers
         try {
             const successful = document.execCommand('copy');
             if (successful) success(); else fail();
@@ -1232,6 +1371,7 @@
     state.memo = "";
     state.selected = [];
     state.outputs = { nb:"", slides:"", info:"", gpt:"", gemini:"" };
+    // クリアしても利用回数はリセットしません（無料枠のため）
     inpTheme.value = state.themeText;
     inpMemo.value = "";
     countSel.textContent = "0";
@@ -1270,7 +1410,6 @@
     showToast("デモデータを入れました");
   }
   
-  // Handlers
   function handleClearClick() {
       openConfirm("すべてクリア", "入力した内容をすべて消去して、\n初期状態に戻しますか？", true, hardClearCore);
   }
@@ -1279,50 +1418,13 @@
       openConfirm("デモデータを投入", "現在の入力を上書きして、\nサンプルデータを自動入力しますか？", false, demoFillCore);
   }
 
-  function toggleThemeMode() {
-    if (state.darkMode === null) state.darkMode = true;
-    else if (state.darkMode === true) state.darkMode = false;
-    else state.darkMode = null;
-
-    applyThemeMode();
-    saveLS();
-    const label = (state.darkMode === null) ? "OSに合わせます" : (state.darkMode ? "ダーク" : "ライト");
-    showToast("表示：" + label);
-  }
-
-  function bindColorPair(hexEl, pickEl, key) {
-    function setBoth(v) {
-      const h = clampHex(v);
-      if (!h) return false;
-      state.colors[key] = h;
-      hexEl.value = h;
-      pickEl.value = h;
-      applyColors();
-      saveLS();
-      return true;
-    }
-
-    hexEl.addEventListener("blur", () => {
-      const ok = setBoth(hexEl.value);
-      if (!ok) {
-        hexEl.value = state.colors[key];
-        showToast("HEXは #RRGGBB で入力してね");
-      }
-    });
-    pickEl.addEventListener("input", () => setBoth(pickEl.value));
-  }
-
   function setTone(t) {
     state.tone = t;
     toneButtons.forEach(b => {
       const on = b.dataset.tone === t;
-      // Reset
-      b.classList.remove("bg-[var(--c-main)]", "text-white", "border-transparent", "bg-white", "text-zinc-900", "dark:bg-zinc-900", "dark:text-zinc-100");
-      
+      b.classList.remove("border-spc-main", "bg-spc-main/5", "text-spc-main");
       if(on) {
-          b.classList.add("bg-[var(--c-main)]", "text-white", "border-transparent");
-      } else {
-          b.classList.add("bg-white", "text-zinc-900", "dark:bg-zinc-900", "dark:text-zinc-100");
+          b.classList.add("border-spc-main", "bg-spc-main/5", "text-spc-main");
       }
     });
     saveLS();
@@ -1330,16 +1432,8 @@
 
   // Events
   btnSettings.addEventListener("click", () => openModal(modalSettings));
-  btnCloseSettings.addEventListener("click", () => closeModal(modalSettings));
-  modalSettings.addEventListener("click", (e) => {
-    if (e.target === modalSettings.querySelector(".absolute.inset-0")) closeModal(modalSettings);
-  });
-
+  
   btnGuide.addEventListener("click", () => openModal(modalGuide));
-  btnCloseGuide.addEventListener("click", () => closeModal(modalGuide));
-  modalGuide.addEventListener("click", (e) => {
-    if (e.target === modalGuide.querySelector(".absolute.inset-0")) closeModal(modalGuide);
-  });
 
   btnThemeLight.addEventListener("click", () => { state.darkMode = false; applyThemeMode(); saveLS(); });
   btnThemeDark.addEventListener("click", () => { state.darkMode = true; applyThemeMode(); saveLS(); });
@@ -1348,10 +1442,6 @@
   btnConsult.addEventListener("click", () => {
     setConsultTemplate();
     openModal(modalConsult);
-  });
-  btnCloseConsult.addEventListener("click", () => closeModal(modalConsult));
-  modalConsult.addEventListener("click", (e) => {
-    if (e.target === modalConsult.querySelector(".absolute.inset-0")) closeModal(modalConsult);
   });
 
   selIndustry.addEventListener("change", () => {
@@ -1365,20 +1455,6 @@
   });
 
   toneButtons.forEach(b => b.addEventListener("click", () => setTone(b.dataset.tone)));
-
-  bindColorPair(hexMain, pickMain, "main");
-  bindColorPair(hexSub, pickSub, "sub");
-  bindColorPair(hexAccent, pickAccent, "accent");
-
-  btnResetColors.addEventListener("click", () => {
-    state.colors = { main:"#020562", sub:"#22AEC9", accent:"#FEFEFE" };
-    hexMain.value = state.colors.main; pickMain.value = state.colors.main;
-    hexSub.value = state.colors.sub; pickSub.value = state.colors.sub;
-    hexAccent.value = state.colors.accent; pickAccent.value = state.colors.accent;
-    applyColors();
-    saveLS();
-    showToast("配色を戻しました");
-  });
 
   btnGenerate.addEventListener("click", doGenerate);
 
@@ -1408,13 +1484,28 @@
     showToast("保存しました");
   });
 
-  btnCopyConsult.addEventListener("click", () => copyText(consultText.value || ""));
-  
-  // Mail Buttons Logic
-  const mailTo = "spc@smileplusctg.com"; // User requested email address
-  const mailSubject = "潜在ニーズレーダー（デモ）出力結果の相談";
+  // パスワード解除処理
+  document.getElementById("btnUnlock").addEventListener("click", () => {
+      const pwd = document.getElementById("inpPassword").value;
+      if (pwd === SECRET_PASSWORD) {
+          state.isPremium = true;
+          saveLS();
+          updateBanner();
+          closeModal(document.getElementById('modalPremium'));
+          showToast("有料版の制限解除が完了しました！");
+      } else {
+          alert("パスワードが正しくありません。");
+      }
+  });
 
-  // Mail (Default)
+  // Mail Buttons Logic
+  const mailTo = "spc@smileplusctg.com"; 
+  const mailSubject = "潜在ニーズみっけ（デモ）出力結果の相談";
+
+  btnCopyConsult.addEventListener("click", function() {
+      copyText(consultText.value || "", this);
+  });
+
   btnMailConsult.addEventListener("click", () => {
     copyText(consultText.value);
     const body = "（先ほどコピーした内容をここに貼り付けてください）";
@@ -1422,27 +1513,19 @@
     setTimeout(() => { window.location.href = mailtoUrl; }, 300);
   });
 
-  // Gmail (New)
   btnGmailConsult.addEventListener("click", () => {
-    // クリップボードにもコピー（バックアップ）
     copyText(consultText.value);
-    
-    // 本文をURLパラメータにセット
-    const body = consultText.value;
+    const body = "（先ほどコピーした内容をここに貼り付けてください）";
     const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${mailTo}&su=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(body)}`;
-    
     setTimeout(() => { window.open(gmailUrl, '_blank'); }, 300);
   });
 
-  // Theme Dropdown Logic
   selThemeTemplate.addEventListener("change", (e) => {
     const val = e.target.value;
     if (val) {
         inpTheme.value = val;
         state.themeText = val;
         saveLS();
-        // Optional: Reset dropdown to default state after selection if desired
-        // e.target.value = ""; 
     }
   });
 
@@ -1461,6 +1544,11 @@
   // Init
   loadLS();
 
+  // Migration for old Tone values
+  if (state.tone === "やさしい") state.tone = "現場向け（共感）";
+  if (state.tone === "ビジネス") state.tone = "経営層向け（論理）";
+  if (state.tone === "熱量") state.tone = "推進用（熱意）";
+
   // reflect loaded values
   selIndustry.value = industries.includes(state.industry) ? state.industry : "その他";
   badgeIndustry.textContent = "業種：" + selIndustry.value;
@@ -1469,16 +1557,13 @@
   inpTheme.value = state.themeText || "";
   inpMemo.value = state.memo || "";
 
-  // colors
-  hexMain.value = state.colors.main; pickMain.value = state.colors.main;
-  hexSub.value = state.colors.sub; pickSub.value = state.colors.sub;
-  hexAccent.value = state.colors.accent; pickAccent.value = state.colors.accent;
-
   applyColors();
   applyThemeMode();
 
-  setTone(state.tone || "やさしい");
+  setTone(state.tone || "現場向け（共感）");
   renderChecks();
+  
+  updateBanner(); // バナーの状態を初期表示時に更新
 
   setActiveTab(state.activeTab || "nb");
   setConsultTemplate();
