@@ -122,8 +122,8 @@
   </div>
 
   <div class="mx-auto max-w-4xl px-4 sm:px-6 pb-28">
-    <!-- Header -->
-    <header class="mt-4 rounded-3xl bg-brand-header p-6 sm:p-8 shadow-xl relative overflow-hidden">
+    <!-- Header (Sticky Fixed) -->
+    <header id="mainHeader" class="sticky top-14 sm:top-12 z-[90] mt-4 rounded-3xl bg-brand-header p-6 sm:p-8 shadow-xl relative overflow-hidden transition-all duration-300">
       <div class="absolute -right-20 -top-20 w-64 h-64 bg-spc-gold opacity-10 rounded-full blur-3xl pointer-events-none"></div>
       
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 sm:gap-6 relative z-10">
@@ -136,7 +136,10 @@
             <span class="opacity-50">/</span>
             <span id="badgeIndustry" class="truncate font-bold max-w-[140px] sm:max-w-none">業種：IT・Web制作</span>
           </div>
-          <h1 class="mt-4 text-2xl sm:text-3xl md:text-4xl font-serif font-bold tracking-tight text-white drop-shadow-md">潜在ニーズみっけ</h1>
+          <!-- タイトルクリックで先頭へ戻る -->
+          <h1 onclick="window.scrollTo({top: 0, behavior: 'smooth'});" class="mt-4 text-2xl sm:text-3xl md:text-4xl font-serif font-bold tracking-tight text-white drop-shadow-md cursor-pointer hover:text-spc-gold transition-colors inline-block">
+            潜在ニーズみっけ
+          </h1>
           <p class="mt-2 text-xs sm:text-sm md:text-base leading-relaxed text-white/80 font-light">
             まだ言葉になっていない困りごとを、整理して出力
           </p>
@@ -154,7 +157,7 @@
       </div>
     </header>
 
-    <main class="mt-6 space-y-6">
+    <main class="mt-6 space-y-6 relative z-10">
       
       <!-- Theme Input Section -->
       <section class="rounded-3xl border border-soft bg-white p-5 sm:p-8 shadow-sm dark:bg-zinc-900 transition-all">
@@ -836,14 +839,19 @@
     const banner = document.getElementById("premiumBanner");
     const icon = document.getElementById("bannerIcon");
     const text = document.getElementById("bannerText");
+    const header = document.getElementById("mainHeader");
     
     if (state.isPremium) {
       banner.style.display = "none";
       document.body.classList.remove("pt-16", "sm:pt-12");
+      header.classList.remove("top-14", "sm:top-[3.25rem]");
+      header.classList.add("top-4");
       return;
     } else {
       banner.style.display = "flex";
       document.body.classList.add("pt-16", "sm:pt-12");
+      header.classList.remove("top-4");
+      header.classList.add("top-14", "sm:top-[3.25rem]");
     }
 
     banner.classList.remove("bg-spc-gold", "text-white", "bg-red-500", "hover:bg-red-600");
