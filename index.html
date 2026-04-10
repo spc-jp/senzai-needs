@@ -100,45 +100,55 @@
       transform: translateY(0);
       opacity: 1;
     }
+
+    /* 横スクロールバーを非表示にするユーティリティ */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
   </style>
 </head>
 
-<!-- pt-11 を追加して上部固定バナーの被りを防ぎます -->
-<body class="min-h-screen bg-slate-50 text-slate-800 dark:bg-zinc-950 dark:text-slate-200 pt-11">
+<!-- スマホ表示時のバナー被り防止のため pt-16 sm:pt-12 と広めにとる -->
+<body class="min-h-screen bg-slate-50 text-slate-800 dark:bg-zinc-950 dark:text-slate-200 pt-16 sm:pt-12">
   
   <!-- 上部固定バナー（無料体験状況） -->
-  <div id="premiumBanner" class="fixed top-0 inset-x-0 z-[100] transition-colors cursor-pointer text-center py-2.5 px-4 shadow-md text-sm font-bold flex items-center justify-center gap-2" onclick="openModal(document.getElementById('modalPremium'))">
+  <div id="premiumBanner" class="fixed top-0 inset-x-0 z-[100] transition-colors cursor-pointer text-center py-3 sm:py-2.5 px-4 shadow-md text-xs sm:text-sm font-bold flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 leading-snug" onclick="openModal(document.getElementById('modalPremium'))">
     <span id="bannerIcon">🎁</span>
     <span id="bannerText">今なら3回まで無料でお試しいただけます（登録不要）</span>
   </div>
 
-  <div class="mx-auto max-w-4xl px-4 pb-28">
+  <div class="mx-auto max-w-4xl px-4 sm:px-6 pb-28">
     <!-- Header -->
-    <header class="mt-4 rounded-3xl bg-brand-header p-8 shadow-xl relative overflow-hidden">
+    <header class="mt-4 rounded-3xl bg-brand-header p-6 sm:p-8 shadow-xl relative overflow-hidden">
       <div class="absolute -right-20 -top-20 w-64 h-64 bg-spc-gold opacity-10 rounded-full blur-3xl pointer-events-none"></div>
       
-      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
-        <div class="min-w-0">
-          <div class="inline-flex flex-wrap items-center gap-2 rounded-full chip-on-dark px-3 py-1.5 text-xs tracking-wide">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 sm:gap-6 relative z-10">
+        <div class="min-w-0 w-full">
+          <div class="inline-flex flex-wrap items-center gap-1.5 sm:gap-2 rounded-full chip-on-dark px-3 py-1.5 text-[10px] sm:text-xs tracking-wide">
             <span class="text-spc-gold"><i class="ph-fill ph-sparkle"></i></span>
             <span>デモ盤</span>
             <span class="opacity-50">/</span>
             <span>潜在ニーズ直球</span>
             <span class="opacity-50">/</span>
-            <span id="badgeIndustry" class="truncate font-bold">業種：IT・Web制作</span>
+            <span id="badgeIndustry" class="truncate font-bold max-w-[140px] sm:max-w-none">業種：IT・Web制作</span>
           </div>
-          <h1 class="mt-4 text-3xl md:text-4xl font-serif font-bold tracking-tight text-white drop-shadow-md">潜在ニーズみっけ</h1>
-          <p class="mt-2 text-sm md:text-base leading-relaxed text-white/80 font-light">
+          <h1 class="mt-4 text-2xl sm:text-3xl md:text-4xl font-serif font-bold tracking-tight text-white drop-shadow-md">潜在ニーズみっけ</h1>
+          <p class="mt-2 text-xs sm:text-sm md:text-base leading-relaxed text-white/80 font-light">
             まだ言葉になっていない困りごとを、整理して出力
           </p>
         </div>
 
-        <div class="flex shrink-0 items-center gap-2 self-end md:self-auto">
-           <button id="btnGuide" class="btn-on-dark inline-flex items-center justify-center rounded-2xl px-5 py-2.5 text-sm font-medium shadow-sm transition-colors">
-            <i class="ph ph-book-open-text mr-2 text-lg"></i>使い方
+        <!-- スマホでは横幅いっぱいに広がるように -->
+        <div class="flex w-full sm:w-auto shrink-0 items-center gap-2 mt-2 sm:mt-0">
+           <button id="btnGuide" class="btn-on-dark flex-1 sm:flex-none inline-flex items-center justify-center rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-medium shadow-sm transition-colors">
+            <i class="ph ph-book-open-text mr-1.5 sm:mr-2 text-base sm:text-lg"></i>使い方
           </button>
-          <button id="btnSettings" class="btn-on-dark inline-flex items-center justify-center rounded-2xl px-5 py-2.5 text-sm font-medium shadow-sm transition-colors" aria-haspopup="dialog">
-            <i class="ph ph-gear-six mr-2 text-lg"></i>設定
+          <button id="btnSettings" class="btn-on-dark flex-1 sm:flex-none inline-flex items-center justify-center rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-medium shadow-sm transition-colors" aria-haspopup="dialog">
+            <i class="ph ph-gear-six mr-1.5 sm:mr-2 text-base sm:text-lg"></i>設定
           </button>
         </div>
       </div>
@@ -147,15 +157,16 @@
     <main class="mt-6 space-y-6">
       
       <!-- Theme Input Section -->
-      <section class="rounded-3xl border border-soft bg-white p-6 md:p-8 shadow-sm dark:bg-zinc-900 transition-all">
+      <section class="rounded-3xl border border-soft bg-white p-5 sm:p-8 shadow-sm dark:bg-zinc-900 transition-all">
         <div class="flex flex-col gap-4">
-          <div class="flex items-center justify-between mb-1">
-            <label class="text-base font-bold text-spc-main dark:text-blue-300 flex items-center gap-2">
-              <i class="ph-fill ph-target text-spc-gold"></i>今日のテーマ
+          <!-- スマホ時は縦並びにして、セレクトボックスを見切れさせない -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-1">
+            <label class="text-sm sm:text-base font-bold text-spc-main dark:text-blue-300 flex items-center gap-2">
+              <i class="ph-fill ph-target text-spc-gold text-lg"></i>今日のテーマ
             </label>
             
-            <div class="relative group">
-              <select id="selThemeTemplate" class="appearance-none cursor-pointer rounded-xl border border-slate-200 bg-slate-50 py-2 pl-4 pr-10 text-xs font-bold text-slate-600 shadow-sm focus:border-spc-gold focus:ring-2 focus:ring-spc-gold/30 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 transition-all">
+            <div class="relative group w-full sm:w-auto">
+              <select id="selThemeTemplate" class="appearance-none cursor-pointer w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-3 pr-8 sm:py-2 sm:pl-4 sm:pr-10 text-[11px] sm:text-xs font-bold text-slate-600 shadow-sm focus:border-spc-gold focus:ring-2 focus:ring-spc-gold/30 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 transition-all truncate">
                 <option value="">✨ ヒント：よくあるテーマから選ぶ</option>
                 <option value="まだ言葉になっていない困りごとを見つけたい">📌 まだ言葉になっていない困りごとを見つけたい</option>
                 <option value="現場の「忙しい」を具体的に分解して楽にしたい">🏃 現場の「忙しい」を具体的に分解して楽にしたい</option>
@@ -171,109 +182,110 @@
             </div>
           </div>
 
-          <input id="inpTheme" class="ring-brand w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-base text-slate-800 shadow-inner placeholder:text-slate-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-slate-100 transition-all"
+          <input id="inpTheme" class="ring-brand w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 sm:px-5 sm:py-4 text-sm sm:text-base text-slate-800 shadow-inner placeholder:text-slate-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-slate-100 transition-all"
             placeholder="ここに入力するか、上のヒントから選べます" />
-          <p class="text-xs text-slate-500 dark:text-slate-400">
+          <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
             選んだあとに自由に変えられます。ふわっとしたままでOKです。
           </p>
         </div>
       </section>
 
       <!-- Check List Section -->
-      <section class="rounded-3xl border border-soft bg-white p-6 md:p-8 shadow-sm dark:bg-zinc-900 transition-all">
-        <div class="flex items-start justify-between gap-3 mb-6">
+      <section class="rounded-3xl border border-soft bg-white p-5 sm:p-8 shadow-sm dark:bg-zinc-900 transition-all">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5 sm:mb-6">
           <div>
-            <h2 class="text-base font-bold text-spc-main dark:text-blue-300 flex items-center gap-2">
-              <i class="ph-fill ph-check-square-offset text-spc-gold"></i>最近の状態チェック
+            <h2 class="text-sm sm:text-base font-bold text-spc-main dark:text-blue-300 flex items-center gap-2">
+              <i class="ph-fill ph-check-square-offset text-spc-gold text-lg"></i>最近の状態チェック
             </h2>
-            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              直感で選ぶだけでOK。最大10個まで（いま <span id="countSel" class="font-bold text-spc-gold text-sm">0</span>/10）。
+            <p class="mt-1 text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
+              直感で選ぶだけでOK。最大10個まで（いま <span id="countSel" class="font-bold text-spc-gold text-xs sm:text-sm">0</span>/10）。
             </p>
           </div>
-          <div class="hidden sm:flex items-center gap-2 text-xs font-medium text-slate-500">
-            <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 dark:bg-zinc-800">業種連動</span>
+          <div class="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-medium text-slate-500">
+            <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 dark:bg-zinc-800">業種連動</span>
           </div>
         </div>
 
-        <div id="listChecks" class="grid grid-cols-1 gap-3 sm:grid-cols-2"></div>
+        <div id="listChecks" class="grid grid-cols-1 gap-2.5 sm:gap-3 sm:grid-cols-2"></div>
 
-        <div class="mt-8">
+        <div class="mt-6 sm:mt-8">
           <label class="text-sm font-bold text-spc-main dark:text-blue-300 mb-2 block">追加メモ（任意）</label>
-          <textarea id="inpMemo" rows="3" class="ring-brand w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-800 shadow-inner placeholder:text-slate-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-slate-100 transition-all"
+          <textarea id="inpMemo" rows="3" class="ring-brand w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 sm:px-5 sm:py-4 text-sm text-slate-800 shadow-inner placeholder:text-slate-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-slate-100 transition-all"
             placeholder="例：社内で同じ説明が何度も起きている。会議が長いのに決まらない。"></textarea>
         </div>
 
-        <div class="mt-8 flex flex-col items-center justify-center gap-4 border-t border-slate-100 dark:border-zinc-800 pt-8">
-          <button id="btnGenerate" class="btn-gold ring-brand w-full sm:w-auto inline-flex items-center justify-center gap-3 rounded-2xl px-10 py-4 text-base font-bold shadow-lg transition-transform active:scale-95">
-            <i id="genIcon" class="ph-bold ph-magic-wand text-xl"></i>
+        <div class="mt-6 sm:mt-8 flex flex-col items-center justify-center gap-3 sm:gap-4 border-t border-slate-100 dark:border-zinc-800 pt-6 sm:pt-8">
+          <button id="btnGenerate" class="btn-gold ring-brand w-full sm:w-auto inline-flex items-center justify-center gap-2.5 sm:gap-3 rounded-2xl px-6 py-3.5 sm:px-10 sm:py-4 text-sm sm:text-base font-bold shadow-lg transition-transform active:scale-95">
+            <i id="genIcon" class="ph-bold ph-magic-wand text-lg sm:text-xl"></i>
             <span>まとめて出力する</span>
           </button>
-          <p id="genStatus" class="text-xs font-bold text-slate-500 dark:text-slate-400">
+          <p id="genStatus" class="text-[11px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 text-center">
             選んだ内容から、原因と次の一歩をAIが組み立てます
           </p>
         </div>
       </section>
 
       <!-- Output Section -->
-      <section id="outSection" class="rounded-3xl border border-soft bg-white p-6 md:p-8 shadow-sm dark:bg-zinc-900 transition-all">
-        <div class="flex items-start justify-between gap-3 mb-6">
+      <section id="outSection" class="rounded-3xl border border-soft bg-white p-5 sm:p-8 shadow-sm dark:bg-zinc-900 transition-all">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5 sm:mb-6">
           <div>
-            <h2 class="text-base font-bold text-spc-main dark:text-blue-300 flex items-center gap-2">
-              <i class="ph-fill ph-file-text text-spc-gold"></i>出力結果
+            <h2 class="text-sm sm:text-base font-bold text-spc-main dark:text-blue-300 flex items-center gap-2">
+              <i class="ph-fill ph-file-text text-spc-gold text-lg"></i>出力結果
             </h2>
-            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            <p class="mt-1 text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
               そのままNotebookLMやAIに貼れるプロンプトセットです。
             </p>
           </div>
-          <div class="flex gap-2">
-            <button id="btnSaveNote" class="ring-brand inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-600 shadow-sm hover:bg-slate-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-slate-300 dark:hover:bg-zinc-700">
-              <i class="ph-bold ph-floppy-disk mr-1.5"></i>保存
+          <div class="flex w-full sm:w-auto gap-2">
+            <button id="btnSaveNote" class="ring-brand flex-1 sm:flex-none inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-[11px] sm:text-xs font-bold text-slate-600 shadow-sm hover:bg-slate-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-slate-300 dark:hover:bg-zinc-700">
+              <i class="ph-bold ph-floppy-disk mr-1 sm:mr-1.5"></i>保存
             </button>
-            <button id="btnCopyAll" class="ring-brand inline-flex items-center justify-center rounded-xl bg-spc-main text-white px-4 py-2 text-xs font-bold shadow-sm hover:bg-opacity-90">
-              <i class="ph-bold ph-copy mr-1.5"></i>全部コピー
+            <button id="btnCopyAll" class="ring-brand flex-1 sm:flex-none inline-flex items-center justify-center rounded-xl bg-spc-main text-white px-3 py-2 text-[11px] sm:text-xs font-bold shadow-sm hover:bg-opacity-90">
+              <i class="ph-bold ph-copy mr-1 sm:mr-1.5"></i>全部コピー
             </button>
           </div>
         </div>
 
-        <!-- Tabs -->
-        <div class="flex flex-wrap gap-2 pb-2 border-b border-slate-100 dark:border-zinc-800 mb-4">
-          <button class="tabBtn ring-brand rounded-full px-4 py-2 text-xs font-bold transition-all" data-tab="nb">NotebookLM用</button>
-          <button class="tabBtn ring-brand rounded-full px-4 py-2 text-xs font-bold transition-all" data-tab="slides">スライド構成</button>
-          <button class="tabBtn ring-brand rounded-full px-4 py-2 text-xs font-bold transition-all" data-tab="info">インフォグラ構造</button>
-          <button class="tabBtn ring-brand rounded-full px-4 py-2 text-xs font-bold transition-all" data-tab="gpt">GPT用</button>
-          <button class="tabBtn ring-brand rounded-full px-4 py-2 text-xs font-bold transition-all" data-tab="gemini">Gemini用</button>
+        <!-- Tabs (スマホでは横スクロールで押しやすく) -->
+        <div class="flex overflow-x-auto whitespace-nowrap gap-2 pb-2 sm:pb-3 border-b border-slate-100 dark:border-zinc-800 mb-4 no-scrollbar snap-x">
+          <button class="tabBtn ring-brand rounded-full px-3 py-2 sm:px-4 sm:py-2 text-[11px] sm:text-xs font-bold transition-all snap-start shrink-0" data-tab="nb">NotebookLM用</button>
+          <button class="tabBtn ring-brand rounded-full px-3 py-2 sm:px-4 sm:py-2 text-[11px] sm:text-xs font-bold transition-all snap-start shrink-0" data-tab="slides">スライド構成</button>
+          <button class="tabBtn ring-brand rounded-full px-3 py-2 sm:px-4 sm:py-2 text-[11px] sm:text-xs font-bold transition-all snap-start shrink-0" data-tab="info">インフォグラ構造</button>
+          <button class="tabBtn ring-brand rounded-full px-3 py-2 sm:px-4 sm:py-2 text-[11px] sm:text-xs font-bold transition-all snap-start shrink-0" data-tab="gpt">GPT用</button>
+          <button class="tabBtn ring-brand rounded-full px-3 py-2 sm:px-4 sm:py-2 text-[11px] sm:text-xs font-bold transition-all snap-start shrink-0" data-tab="gemini">Gemini用</button>
         </div>
 
         <div>
           <div class="flex items-center justify-between mb-2 px-1">
-            <span id="tabLabel" class="text-sm font-bold text-spc-main dark:text-blue-300">NotebookLM用ソース</span>
-            <button id="btnCopyTab" class="text-xs font-bold text-spc-sub hover:underline flex items-center">
+            <span id="tabLabel" class="text-[11px] sm:text-sm font-bold text-spc-main dark:text-blue-300">NotebookLM用ソース</span>
+            <button id="btnCopyTab" class="text-[11px] sm:text-xs font-bold text-spc-sub hover:underline flex items-center p-1">
               <i class="ph-bold ph-copy mr-1"></i>このタブをコピー
             </button>
           </div>
-          <textarea id="outText" class="ring-brand h-80 w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 font-mono text-[13px] leading-relaxed text-slate-800 shadow-inner dark:border-zinc-700 dark:bg-zinc-950 dark:text-slate-200 focus:ring-2 focus:ring-spc-gold/50" spellcheck="false"></textarea>
+          <!-- スマホでは少し高さを抑える -->
+          <textarea id="outText" class="ring-brand h-64 sm:h-80 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 sm:px-5 sm:py-4 font-mono text-[11px] sm:text-[13px] leading-relaxed text-slate-800 shadow-inner dark:border-zinc-700 dark:bg-zinc-950 dark:text-slate-200 focus:ring-2 focus:ring-spc-gold/50" spellcheck="false"></textarea>
         </div>
       </section>
 
       <!-- CTA Section -->
-      <section class="rounded-3xl bg-spc-main p-8 md:p-10 shadow-xl relative overflow-hidden text-center md:text-left border border-spc-gold/30">
+      <section class="rounded-3xl bg-spc-main p-6 sm:p-8 md:p-10 shadow-xl relative overflow-hidden text-center md:text-left border border-spc-gold/30">
         <div class="absolute -top-24 -right-24 w-64 h-64 bg-spc-gold opacity-20 rounded-full blur-3xl pointer-events-none"></div>
         
-        <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+        <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
             <div>
-                <h3 class="text-xl md:text-2xl font-serif font-bold text-white mb-3 tracking-wide">このデモは、気づきの入口です</h3>
-                <p class="text-sm md:text-base leading-relaxed text-slate-300 font-light">
+                <h3 class="text-lg sm:text-xl md:text-2xl font-serif font-bold text-white mb-2 sm:mb-3 tracking-wide">このデモは、気づきの入口です</h3>
+                <p class="text-[11px] sm:text-sm md:text-base leading-relaxed text-slate-300 font-light">
                     本当に価値が出るのは、御社の言葉に置き換えたとき。<br class="hidden sm:block" />
                     「この出力をベースに、自社専用版を作りたい」そんな相談から始められます。
                 </p>
             </div>
-            <button id="btnConsult" class="btn-gold ring-brand inline-flex w-full md:w-auto items-center justify-center rounded-2xl px-8 py-4 text-base font-bold shadow-[0_8px_20px_rgba(208,169,0,0.3)] transition-transform active:scale-95 shrink-0">
-                <i class="ph-fill ph-chat-circle-text mr-2 text-xl"></i>自社専用版の相談をする
+            <button id="btnConsult" class="btn-gold ring-brand inline-flex w-full md:w-auto items-center justify-center rounded-2xl px-6 py-3.5 sm:px-8 sm:py-4 text-sm sm:text-base font-bold shadow-[0_8px_20px_rgba(208,169,0,0.3)] transition-transform active:scale-95 shrink-0">
+                <i class="ph-fill ph-chat-circle-text mr-2 text-lg sm:text-xl"></i>自社専用版の相談をする
             </button>
         </div>
       </section>
 
-      <p class="pb-6 text-center text-xs text-slate-400 dark:text-slate-500 font-medium">
+      <p class="pb-6 text-center text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 font-medium">
         潜在ニーズみっけ（デモ盤）｜保存はこの端末のブラウザ内にのみ行われます
       </p>
     </main>
@@ -282,34 +294,33 @@
   <!-- 有料版アップグレードモーダル -->
   <div id="modalPremium" class="fixed inset-0 z-[120] hidden modal flex items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/70 backdrop-blur-md" onclick="closeModal(document.getElementById('modalPremium'))"></div>
-    <div class="modal-content relative w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
-        <button onclick="closeModal(document.getElementById('modalPremium'))" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 transition-colors dark:hover:text-slate-300">
-            <i class="ph-bold ph-x text-xl"></i>
+    <div class="modal-content relative w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
+        <button onclick="closeModal(document.getElementById('modalPremium'))" class="absolute top-4 right-4 sm:top-5 sm:right-5 text-slate-400 hover:text-slate-600 transition-colors dark:hover:text-slate-300 p-2">
+            <i class="ph-bold ph-x text-lg sm:text-xl"></i>
         </button>
         
         <div class="text-center mb-6">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-spc-gold/10 text-spc-gold mb-4 shadow-inner">
-                <i class="ph-fill ph-crown text-4xl"></i>
+            <div class="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-spc-gold/10 text-spc-gold mb-3 sm:mb-4 shadow-inner">
+                <i class="ph-fill ph-crown text-3xl sm:text-4xl"></i>
             </div>
-            <h3 class="font-serif text-2xl font-bold text-spc-main dark:text-blue-300">有料版のご案内</h3>
-            <p class="mt-3 text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+            <h3 class="font-serif text-xl sm:text-2xl font-bold text-spc-main dark:text-blue-300">有料版のご案内</h3>
+            <p class="mt-2 sm:mt-3 text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
                 無料体験（3回）が終了いたしました。<br>引き続きご利用いただくには、有料版のご購入をお願いいたします。
             </p>
         </div>
 
-        <div class="space-y-6">
-            <!-- URLの設定：ご自身のStripeリンクに変更してください -->
-            <a href="https://buy.stripe.com/9B628q6iC0AJ3GDf3mcV20x" target="_blank" class="btn-gold w-full flex items-center justify-center rounded-2xl py-4 text-base font-bold shadow-lg transition-transform hover:scale-[1.02] active:scale-95">
-                <i class="ph-bold ph-credit-card mr-2 text-xl"></i>
+        <div class="space-y-5 sm:space-y-6">
+            <a href="https://buy.stripe.com/9B628q6iC0AJ3GDf3mcV20x" target="_blank" class="btn-gold w-full flex items-center justify-center rounded-2xl py-3.5 sm:py-4 text-sm sm:text-base font-bold shadow-lg transition-transform hover:scale-[1.02] active:scale-95">
+                <i class="ph-bold ph-credit-card mr-2 text-lg sm:text-xl"></i>
                 ご購入はこちら（Stripe）
             </a>
 
-            <div class="border-t border-slate-200 dark:border-zinc-700 pt-6">
-                <p class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-2 text-center">すでにご購入済みの方</p>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mb-4 text-center">サンクスメールに記載のパスワードを入力してください。</p>
-                <div class="flex gap-2">
-                    <input id="inpPassword" type="password" placeholder="パスワード (例: spc2026)" class="flex-1 rounded-xl border border-slate-300 bg-slate-50 px-4 py-2.5 text-sm outline-none focus:border-spc-main focus:ring-1 focus:ring-spc-main dark:border-zinc-600 dark:bg-zinc-800 dark:text-slate-200 transition-colors">
-                    <button id="btnUnlock" class="rounded-xl bg-slate-800 px-5 py-2.5 text-sm font-bold text-white hover:bg-slate-900 transition-colors shadow-sm whitespace-nowrap dark:bg-zinc-700 dark:hover:bg-zinc-600">
+            <div class="border-t border-slate-200 dark:border-zinc-700 pt-5 sm:pt-6">
+                <p class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 mb-1 sm:mb-2 text-center">すでにご購入済みの方</p>
+                <p class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mb-3 sm:mb-4 text-center">サンクスメールに記載のパスワードを入力してください。</p>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input id="inpPassword" type="password" placeholder="パスワード (例: spc2026)" class="flex-1 w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 sm:py-2.5 text-sm outline-none focus:border-spc-main focus:ring-1 focus:ring-spc-main dark:border-zinc-600 dark:bg-zinc-800 dark:text-slate-200 transition-colors">
+                    <button id="btnUnlock" class="w-full sm:w-auto rounded-xl bg-slate-800 px-5 py-3 sm:py-2.5 text-sm font-bold text-white hover:bg-slate-900 transition-colors shadow-sm whitespace-nowrap dark:bg-zinc-700 dark:hover:bg-zinc-600">
                         制限解除
                     </button>
                 </div>
@@ -321,53 +332,53 @@
   <!-- Guide Modal -->
   <div id="modalGuide" class="fixed inset-0 z-40 hidden modal flex items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal(document.getElementById('modalGuide'))"></div>
-    <div class="modal-content relative w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
-        <div class="flex items-center justify-between mb-6 border-b border-slate-100 dark:border-zinc-800 pb-4">
-            <h3 class="text-xl font-serif font-bold text-spc-main flex items-center gap-2">
+    <div class="modal-content relative w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-5 sm:mb-6 border-b border-slate-100 dark:border-zinc-800 pb-3 sm:pb-4 sticky top-0 bg-white dark:bg-zinc-900 z-10">
+            <h3 class="text-lg sm:text-xl font-serif font-bold text-spc-main flex items-center gap-2">
                 <i class="ph-fill ph-book-open-text text-spc-gold"></i>
                 使い方ガイド
             </h3>
             <button onclick="closeModal(document.getElementById('modalGuide'))" class="rounded-full bg-slate-100 p-2 text-slate-500 hover:bg-slate-200 dark:bg-zinc-800 dark:text-slate-400 dark:hover:bg-zinc-700 transition-colors">
-                <i class="ph-bold ph-x text-lg"></i>
+                <i class="ph-bold ph-x text-base sm:text-lg"></i>
             </button>
         </div>
 
-        <div class="space-y-6">
+        <div class="space-y-5 sm:space-y-6">
             <div>
-                <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">潜在ニーズを「的（マト）」に変える</h4>
-                <p class="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                <h4 class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 mb-1 sm:mb-2">潜在ニーズを「的（マト）」に変える</h4>
+                <p class="text-[11px] sm:text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                     「何が課題かわからない」という違和感こそが、実は最大のヒントです。<br>
                     このアプリは、現場のモヤモヤを言語化し、AI/DX活用の焦点を絞り込みます。
                 </p>
             </div>
             
-            <div class="bg-slate-50 dark:bg-zinc-800/50 p-5 rounded-2xl">
-                <h4 class="text-sm font-bold text-spc-main dark:text-blue-300 mb-4">気づきの4ステップ</h4>
-                <ul class="space-y-4">
-                    <li class="flex gap-3">
-                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-spc-gold text-xs font-bold text-white shadow-sm">1</span>
-                        <div class="text-xs leading-relaxed text-slate-600 dark:text-slate-400 pt-0.5">
+            <div class="bg-slate-50 dark:bg-zinc-800/50 p-4 sm:p-5 rounded-2xl">
+                <h4 class="text-xs sm:text-sm font-bold text-spc-main dark:text-blue-300 mb-3 sm:mb-4">気づきの4ステップ</h4>
+                <ul class="space-y-3 sm:space-y-4">
+                    <li class="flex gap-2.5 sm:gap-3">
+                        <span class="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-spc-gold text-[10px] sm:text-xs font-bold text-white shadow-sm">1</span>
+                        <div class="text-[11px] sm:text-xs leading-relaxed text-slate-600 dark:text-slate-400 pt-0.5">
                             <span class="font-bold text-slate-800 dark:text-slate-200">違和感を置く</span><br>
                             「忙しい」「なんとなく不安」など、まだ言葉にならない感覚を入力。
                         </div>
                     </li>
-                    <li class="flex gap-3">
-                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-spc-gold text-xs font-bold text-white shadow-sm">2</span>
-                        <div class="text-xs leading-relaxed text-slate-600 dark:text-slate-400 pt-0.5">
+                    <li class="flex gap-2.5 sm:gap-3">
+                        <span class="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-spc-gold text-[10px] sm:text-xs font-bold text-white shadow-sm">2</span>
+                        <div class="text-[11px] sm:text-xs leading-relaxed text-slate-600 dark:text-slate-400 pt-0.5">
                             <span class="font-bold text-slate-800 dark:text-slate-200">兆候を選ぶ</span><br>
                             「現場あるある」から選ぶことで、見えない課題の輪郭が浮かび上がります。
                         </div>
                     </li>
-                    <li class="flex gap-3">
-                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-spc-gold text-xs font-bold text-white shadow-sm">3</span>
-                        <div class="text-xs leading-relaxed text-slate-600 dark:text-slate-400 pt-0.5">
+                    <li class="flex gap-2.5 sm:gap-3">
+                        <span class="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-spc-gold text-[10px] sm:text-xs font-bold text-white shadow-sm">3</span>
+                        <div class="text-[11px] sm:text-xs leading-relaxed text-slate-600 dark:text-slate-400 pt-0.5">
                             <span class="font-bold text-slate-800 dark:text-slate-200">構造化する</span><br>
                             AIが分析し、「真の課題」と「解決への道筋」を構造化して出力します。
                         </div>
                     </li>
-                    <li class="flex gap-3">
-                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-spc-gold text-xs font-bold text-white shadow-sm">4</span>
-                        <div class="text-xs leading-relaxed text-slate-600 dark:text-slate-400 pt-0.5">
+                    <li class="flex gap-2.5 sm:gap-3">
+                        <span class="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-spc-gold text-[10px] sm:text-xs font-bold text-white shadow-sm">4</span>
+                        <div class="text-[11px] sm:text-xs leading-relaxed text-slate-600 dark:text-slate-400 pt-0.5">
                             <span class="font-bold text-slate-800 dark:text-slate-200">次の一歩へ</span><br>
                             出力された共通言語をたたき台に、解決策（自社専用版）を相談できます。
                         </div>
@@ -381,35 +392,35 @@
   <!-- Settings Modal -->
   <div id="modalSettings" class="fixed inset-0 z-40 hidden modal flex items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal(document.getElementById('modalSettings'))"></div>
-    <div class="modal-content relative w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between mb-6 border-b border-slate-100 dark:border-zinc-800 pb-4">
-        <h3 class="text-xl font-serif font-bold text-spc-main flex items-center gap-2">
+    <div class="modal-content relative w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-5 sm:mb-6 border-b border-slate-100 dark:border-zinc-800 pb-3 sm:pb-4 sticky top-0 bg-white dark:bg-zinc-900 z-10">
+        <h3 class="text-lg sm:text-xl font-serif font-bold text-spc-main flex items-center gap-2">
             <i class="ph-fill ph-gear-six text-spc-gold"></i>設定
         </h3>
         <button onclick="closeModal(document.getElementById('modalSettings'))" class="rounded-full bg-slate-100 p-2 text-slate-500 hover:bg-slate-200 dark:bg-zinc-800 dark:text-slate-400 dark:hover:bg-zinc-700 transition-colors">
-            <i class="ph-bold ph-x text-lg"></i>
+            <i class="ph-bold ph-x text-base sm:text-lg"></i>
         </button>
       </div>
 
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div class="rounded-2xl border border-slate-200 p-5 bg-slate-50 dark:border-zinc-700 dark:bg-zinc-800/50">
-            <label class="text-sm font-bold text-slate-800 dark:text-slate-200">外観モード</label>
-            <div class="mt-3 flex gap-2">
-                <button id="btnThemeLight" class="flex-1 rounded-xl border border-slate-200 bg-white py-2 text-xs font-bold text-slate-600 shadow-sm hover:border-spc-main dark:border-zinc-600 dark:bg-zinc-800 dark:text-slate-300 transition-colors">
+      <div class="grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2">
+        <div class="rounded-2xl border border-slate-200 p-4 sm:p-5 bg-slate-50 dark:border-zinc-700 dark:bg-zinc-800/50">
+            <label class="text-[11px] sm:text-sm font-bold text-slate-800 dark:text-slate-200">外観モード</label>
+            <div class="mt-2 sm:mt-3 flex gap-2">
+                <button id="btnThemeLight" class="flex-1 rounded-xl border border-slate-200 bg-white py-2 text-[10px] sm:text-xs font-bold text-slate-600 shadow-sm hover:border-spc-main dark:border-zinc-600 dark:bg-zinc-800 dark:text-slate-300 transition-colors">
                     ライト
                 </button>
-                <button id="btnThemeDark" class="flex-1 rounded-xl border border-slate-200 bg-white py-2 text-xs font-bold text-slate-600 shadow-sm hover:border-spc-main dark:border-zinc-600 dark:bg-zinc-800 dark:text-slate-300 transition-colors">
+                <button id="btnThemeDark" class="flex-1 rounded-xl border border-slate-200 bg-white py-2 text-[10px] sm:text-xs font-bold text-slate-600 shadow-sm hover:border-spc-main dark:border-zinc-600 dark:bg-zinc-800 dark:text-slate-300 transition-colors">
                     ダーク
                 </button>
-                <button id="btnThemeOS" class="flex-1 rounded-xl border border-slate-200 bg-white py-2 text-xs font-bold text-slate-600 shadow-sm hover:border-spc-main dark:border-zinc-600 dark:bg-zinc-800 dark:text-slate-300 transition-colors">
+                <button id="btnThemeOS" class="flex-1 rounded-xl border border-slate-200 bg-white py-2 text-[10px] sm:text-xs font-bold text-slate-600 shadow-sm hover:border-spc-main dark:border-zinc-600 dark:bg-zinc-800 dark:text-slate-300 transition-colors">
                     自動
                 </button>
             </div>
         </div>
 
-        <div class="rounded-2xl border border-slate-200 p-5 bg-white dark:border-zinc-700 dark:bg-zinc-900">
-          <label class="text-sm font-bold text-slate-800 dark:text-slate-200">業種（必須）</label>
-          <select id="selIndustry" class="mt-3 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-800 focus:border-spc-main focus:ring-1 focus:ring-spc-main outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-slate-200">
+        <div class="rounded-2xl border border-slate-200 p-4 sm:p-5 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+          <label class="text-[11px] sm:text-sm font-bold text-slate-800 dark:text-slate-200">業種（必須）</label>
+          <select id="selIndustry" class="mt-2 sm:mt-3 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 sm:px-4 py-2.5 sm:py-2 text-xs sm:text-sm font-medium text-slate-800 focus:border-spc-main focus:ring-1 focus:ring-spc-main outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-slate-200">
             <option>製造業</option>
             <option>建設・工務店</option>
             <option>飲食</option>
@@ -423,26 +434,26 @@
           </select>
         </div>
 
-        <div class="sm:col-span-2 rounded-2xl border border-slate-200 p-5 bg-white dark:border-zinc-700 dark:bg-zinc-900">
-            <label class="text-sm font-bold text-slate-800 dark:text-slate-200 block mb-3">出力トーン（誰に見せるか）</label>
+        <div class="sm:col-span-2 rounded-2xl border border-slate-200 p-4 sm:p-5 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+            <label class="text-[11px] sm:text-sm font-bold text-slate-800 dark:text-slate-200 block mb-2 sm:mb-3">出力トーン（誰に見せるか）</label>
             <div class="flex flex-wrap gap-2">
-              <button class="toneBtn rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-xs font-bold text-slate-600 hover:border-spc-main transition-colors dark:border-zinc-700 dark:bg-zinc-800 dark:text-slate-300" data-tone="現場向け（共感）">現場向け（共感）</button>
-              <button class="toneBtn rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-xs font-bold text-slate-600 hover:border-spc-main transition-colors dark:border-zinc-700 dark:bg-zinc-800 dark:text-slate-300" data-tone="経営層向け（論理）">経営層向け（論理）</button>
-              <button class="toneBtn rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-xs font-bold text-slate-600 hover:border-spc-main transition-colors dark:border-zinc-700 dark:bg-zinc-800 dark:text-slate-300" data-tone="推進用（熱意）">推進用（熱意）</button>
+              <button class="toneBtn flex-1 sm:flex-none rounded-xl border border-slate-200 bg-white px-3 sm:px-5 py-2.5 text-[10px] sm:text-xs font-bold text-slate-600 hover:border-spc-main transition-colors dark:border-zinc-700 dark:bg-zinc-800 dark:text-slate-300" data-tone="現場向け（共感）">現場向け（共感）</button>
+              <button class="toneBtn flex-1 sm:flex-none rounded-xl border border-slate-200 bg-white px-3 sm:px-5 py-2.5 text-[10px] sm:text-xs font-bold text-slate-600 hover:border-spc-main transition-colors dark:border-zinc-700 dark:bg-zinc-800 dark:text-slate-300" data-tone="経営層向け（論理）">経営層向け（論理）</button>
+              <button class="toneBtn w-full sm:w-auto sm:flex-none rounded-xl border border-slate-200 bg-white px-3 sm:px-5 py-2.5 text-[10px] sm:text-xs font-bold text-slate-600 hover:border-spc-main transition-colors dark:border-zinc-700 dark:bg-zinc-800 dark:text-slate-300" data-tone="推進用（熱意）">推進用（熱意）</button>
             </div>
         </div>
         
-        <div class="sm:col-span-2 border-t border-slate-100 pt-6 mt-2 dark:border-zinc-800">
+        <div class="sm:col-span-2 border-t border-slate-100 pt-5 sm:pt-6 mt-1 sm:mt-2 dark:border-zinc-800">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <span class="text-sm font-bold text-slate-800 dark:text-slate-200">データ操作</span>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">入力のクリアやテスト用データの投入</p>
+                    <span class="text-[11px] sm:text-sm font-bold text-slate-800 dark:text-slate-200">データ操作</span>
+                    <p class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1">入力のクリアやテスト用データの投入</p>
                 </div>
                 <div class="flex gap-2">
-                    <button id="btnDemo" class="rounded-xl border border-spc-main bg-white px-5 py-2 text-sm font-bold text-spc-main hover:bg-spc-main/5 dark:bg-zinc-900 transition-colors">
+                    <button id="btnDemo" class="flex-1 sm:flex-none rounded-xl border border-spc-main bg-white px-4 sm:px-5 py-2 text-[11px] sm:text-sm font-bold text-spc-main hover:bg-spc-main/5 dark:bg-zinc-900 transition-colors">
                         デモデータ
                     </button>
-                    <button id="btnClear" class="rounded-xl border border-slate-300 bg-slate-100 px-5 py-2 text-sm font-bold text-slate-600 hover:bg-slate-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-slate-300 transition-colors">
+                    <button id="btnClear" class="flex-1 sm:flex-none rounded-xl border border-slate-300 bg-slate-100 px-4 sm:px-5 py-2 text-[11px] sm:text-sm font-bold text-slate-600 hover:bg-slate-200 dark:border-zinc-600 dark:bg-zinc-800 dark:text-slate-300 transition-colors">
                         クリア
                     </button>
                 </div>
@@ -455,17 +466,17 @@
   <!-- Confirm Modal -->
   <div id="modalConfirm" class="fixed inset-0 z-[70] hidden modal flex items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-    <div class="modal-content relative w-full max-w-sm rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 text-center">
-        <div id="confirmIcon" class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-2xl dark:bg-zinc-800">
+    <div class="modal-content relative w-full max-w-sm rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 text-center">
+        <div id="confirmIcon" class="mx-auto mb-4 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-slate-100 text-xl sm:text-2xl dark:bg-zinc-800">
             ⚠️
         </div>
-        <h3 id="confirmTitle" class="text-lg font-bold text-slate-800 dark:text-slate-100">確認</h3>
-        <p id="confirmMsg" class="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">本当に実行しますか？</p>
-        <div class="mt-8 flex gap-3">
-            <button id="btnConfirmCancel" class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-600 hover:bg-slate-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-slate-300 transition-colors">
+        <h3 id="confirmTitle" class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100">確認</h3>
+        <p id="confirmMsg" class="mt-2 text-xs sm:text-sm leading-relaxed text-slate-600 dark:text-slate-400">本当に実行しますか？</p>
+        <div class="mt-6 sm:mt-8 flex gap-2 sm:gap-3">
+            <button id="btnConfirmCancel" class="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 sm:px-4 sm:py-3 text-[11px] sm:text-sm font-bold text-slate-600 hover:bg-slate-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-slate-300 transition-colors">
                 キャンセル
             </button>
-            <button id="btnConfirmOk" class="flex-1 rounded-xl bg-spc-main px-4 py-3 text-sm font-bold text-white shadow-md active:scale-95 transition-transform">
+            <button id="btnConfirmOk" class="flex-1 rounded-xl bg-spc-main px-3 py-2.5 sm:px-4 sm:py-3 text-[11px] sm:text-sm font-bold text-white shadow-md active:scale-95 transition-transform">
                 実行する
             </button>
         </div>
@@ -475,47 +486,47 @@
   <!-- Consult Modal (Rich Email UI) -->
   <div id="modalConsult" class="fixed inset-0 z-50 hidden modal flex items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal(document.getElementById('modalConsult'))"></div>
-    <div class="modal-content relative w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-8 md:p-10 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
-      <button onclick="closeModal(document.getElementById('modalConsult'))" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-          <i class="ph-bold ph-x text-xl"></i>
+    <div class="modal-content relative w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 md:p-10 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 max-h-[90vh] overflow-y-auto">
+      <button onclick="closeModal(document.getElementById('modalConsult'))" class="absolute top-4 right-4 sm:top-5 sm:right-5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors p-2 z-10 bg-white/80 dark:bg-zinc-900/80 rounded-full">
+          <i class="ph-bold ph-x text-lg sm:text-xl"></i>
       </button>
       
-      <h3 class="font-serif text-2xl font-bold mb-8 text-center text-spc-main dark:text-blue-300">送信方法を選んでください</h3>
+      <h3 class="font-serif text-lg sm:text-xl md:text-2xl font-bold mb-6 sm:mb-8 text-center text-spc-main dark:text-blue-300 mt-2 sm:mt-0">送信方法を選んでください</h3>
       
-      <div class="space-y-4">
+      <div class="space-y-3 sm:space-y-4">
           <!-- Option 1: Default Mailer -->
-          <button id="btnMailConsult" class="w-full flex items-center p-5 border-2 border-slate-100 hover:border-spc-main hover:bg-slate-50 dark:border-zinc-700 dark:hover:border-blue-400 dark:hover:bg-zinc-800 rounded-2xl transition-all group text-left bg-white dark:bg-zinc-900 shadow-sm">
-              <div class="w-14 h-14 bg-slate-100 text-spc-main rounded-full flex items-center justify-center flex-shrink-0 mr-5 group-hover:bg-spc-main group-hover:text-white dark:bg-zinc-800 dark:text-blue-400 transition-colors">
-                  <i class="ph-fill ph-envelope-simple text-2xl"></i>
+          <button id="btnMailConsult" class="w-full flex items-center p-4 sm:p-5 border-2 border-slate-100 hover:border-spc-main hover:bg-slate-50 dark:border-zinc-700 dark:hover:border-blue-400 dark:hover:bg-zinc-800 rounded-2xl transition-all group text-left bg-white dark:bg-zinc-900 shadow-sm">
+              <div class="w-10 h-10 sm:w-14 sm:h-14 bg-slate-100 text-spc-main rounded-full flex items-center justify-center flex-shrink-0 mr-4 sm:mr-5 group-hover:bg-spc-main group-hover:text-white dark:bg-zinc-800 dark:text-blue-400 transition-colors">
+                  <i class="ph-fill ph-envelope-simple text-xl sm:text-2xl"></i>
               </div>
               <div>
-                  <p class="font-bold text-slate-800 dark:text-slate-100 text-lg">メールソフトで送る</p>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Outlook, Macメールなど設定済みの方</p>
+                  <p class="font-bold text-slate-800 dark:text-slate-100 text-sm sm:text-lg">メールソフトで送る</p>
+                  <p class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 sm:mt-1">Outlook, Macメールなど設定済みの方</p>
               </div>
           </button>
 
           <!-- Option 2: Gmail -->
-          <button id="btnGmailConsult" class="w-full flex items-center p-5 border-2 border-slate-100 hover:border-red-500 hover:bg-red-50 dark:border-zinc-700 dark:hover:border-red-500 dark:hover:bg-zinc-800 rounded-2xl transition-all group text-left bg-white dark:bg-zinc-900 shadow-sm">
-              <div class="w-14 h-14 bg-red-50 text-red-500 rounded-full flex items-center justify-center flex-shrink-0 mr-5 group-hover:bg-red-500 group-hover:text-white dark:bg-red-900/20 transition-colors">
-                  <i class="ph-fill ph-google-logo text-2xl"></i>
+          <button id="btnGmailConsult" class="w-full flex items-center p-4 sm:p-5 border-2 border-slate-100 hover:border-red-500 hover:bg-red-50 dark:border-zinc-700 dark:hover:border-red-500 dark:hover:bg-zinc-800 rounded-2xl transition-all group text-left bg-white dark:bg-zinc-900 shadow-sm">
+              <div class="w-10 h-10 sm:w-14 sm:h-14 bg-red-50 text-red-500 rounded-full flex items-center justify-center flex-shrink-0 mr-4 sm:mr-5 group-hover:bg-red-500 group-hover:text-white dark:bg-red-900/20 transition-colors">
+                  <i class="ph-fill ph-google-logo text-xl sm:text-2xl"></i>
               </div>
               <div>
-                  <p class="font-bold text-slate-800 dark:text-slate-100 text-lg">Gmailで送る</p>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">ブラウザでGmailをお使いの方</p>
+                  <p class="font-bold text-slate-800 dark:text-slate-100 text-sm sm:text-lg">Gmailで送る</p>
+                  <p class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 sm:mt-1">ブラウザでGmailをお使いの方</p>
               </div>
           </button>
 
           <!-- Option 3: Copy Text -->
-          <div class="border-t border-slate-100 dark:border-zinc-800 mt-8 pt-6">
-              <p class="text-sm font-bold text-spc-main dark:text-blue-300 mb-3 pl-1">うまくいかない場合は...</p>
-              <div class="bg-slate-50 dark:bg-zinc-950 p-5 rounded-2xl border border-slate-200 dark:border-zinc-800">
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
-                      以下の本文をコピーして、使い慣れたメール等の本文に貼り付けて <span class="font-bold text-spc-main dark:text-blue-400">spc@smileplusctg.com</span> までお送りください。
+          <div class="border-t border-slate-100 dark:border-zinc-800 mt-6 sm:mt-8 pt-5 sm:pt-6">
+              <p class="text-[11px] sm:text-sm font-bold text-spc-main dark:text-blue-300 mb-2 sm:mb-3 pl-1">うまくいかない場合は...</p>
+              <div class="bg-slate-50 dark:bg-zinc-950 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-zinc-800">
+                  <p class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mb-3 sm:mb-4 leading-relaxed">
+                      以下の本文をコピーして、使い慣れたメール等の本文に貼り付けて <span class="font-bold text-spc-main dark:text-blue-400 block sm:inline">spc@smileplusctg.com</span> までお送りください。
                   </p>
-                  <textarea id="consultText" rows="4" readonly class="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl p-3 text-xs mb-4 focus:ring-2 focus:ring-spc-gold outline-none text-slate-600 dark:text-slate-300 resize-none shadow-inner" onClick="this.select()"></textarea>
+                  <textarea id="consultText" rows="4" readonly class="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl p-3 text-[10px] sm:text-xs mb-3 sm:mb-4 focus:ring-2 focus:ring-spc-gold outline-none text-slate-600 dark:text-slate-300 resize-none shadow-inner" onClick="this.select()"></textarea>
                   
-                  <button id="btnCopyConsult" class="w-full bg-slate-800 hover:bg-black dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold py-3.5 rounded-xl text-sm transition-colors shadow-md flex justify-center items-center gap-2">
-                      <i class="ph-bold ph-copy text-base"></i>
+                  <button id="btnCopyConsult" class="w-full bg-slate-800 hover:bg-black dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold py-3 sm:py-3.5 rounded-xl text-xs sm:text-sm transition-colors shadow-md flex justify-center items-center gap-2">
+                      <i class="ph-bold ph-copy text-sm sm:text-base"></i>
                       <span id="copyBtnText">本文をコピーする</span>
                   </button>
               </div>
@@ -525,8 +536,8 @@
   </div>
 
   <!-- Toast -->
-  <div class="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 pointer-events-none">
-    <div id="toast" class="toast rounded-full bg-slate-800/90 dark:bg-white/90 px-6 py-3 text-sm font-bold text-white dark:text-slate-900 shadow-xl backdrop-blur flex items-center gap-2">
+  <div class="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 pointer-events-none max-w-[90vw]">
+    <div id="toast" class="toast rounded-full bg-slate-800/90 dark:bg-white/90 px-5 sm:px-6 py-2.5 sm:py-3 text-[11px] sm:text-sm font-bold text-white dark:text-slate-900 shadow-xl backdrop-blur flex items-center gap-2 whitespace-nowrap">
       <i class="ph-fill ph-check-circle text-green-400"></i>
       <span id="toastMsg">コピーしました</span>
     </div>
@@ -821,11 +832,11 @@
     
     if (state.isPremium) {
       banner.style.display = "none";
-      document.body.classList.remove("pt-11");
+      document.body.classList.remove("pt-16", "sm:pt-12");
       return;
     } else {
       banner.style.display = "flex";
-      document.body.classList.add("pt-11");
+      document.body.classList.add("pt-16", "sm:pt-12");
     }
 
     banner.classList.remove("bg-spc-gold", "text-white", "bg-red-500", "hover:bg-red-600");
@@ -867,12 +878,14 @@
     tabButtons.forEach(b => {
       const isOn = b.dataset.tab === tab;
       
-      b.classList.remove("bg-spc-main", "text-white", "border-transparent");
+      b.classList.remove("bg-spc-main", "text-white", "border-transparent", "shadow-md");
       b.classList.add("bg-white", "text-slate-600", "border-slate-200", "dark:bg-zinc-800", "dark:text-slate-300", "dark:border-zinc-700");
 
       if (isOn) {
         b.classList.remove("bg-white", "text-slate-600", "border-slate-200", "dark:bg-zinc-800", "dark:text-slate-300", "dark:border-zinc-700");
         b.classList.add("bg-spc-main", "text-white", "border-transparent", "shadow-md");
+        // スマホでアクティブなタブが画面外にある場合、スクロールして見せる
+        b.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
       }
     });
     outText.value = state.outputs[tab] || "";
@@ -887,7 +900,7 @@
     items.forEach((txt, idx) => {
       const id = "chk_" + idx;
       const wrap = document.createElement("label");
-      wrap.className = "flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm shadow-sm hover:border-spc-main/50 transition-all dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-blue-400/50";
+      wrap.className = "flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3.5 sm:px-5 sm:py-4 text-[13px] sm:text-sm shadow-sm hover:border-spc-main/50 transition-all dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-blue-400/50";
       
       if (selectedSet.has(txt)) {
         wrap.classList.add("border-spc-main", "bg-indigo-50/50", "dark:bg-indigo-900/20", "dark:border-blue-400");
@@ -895,8 +908,8 @@
       }
 
       wrap.innerHTML = `
-        <div class="relative flex items-center pt-0.5">
-          <input id="${id}" type="checkbox" class="peer h-5 w-5 rounded border-slate-300 text-spc-main focus:ring-spc-main dark:border-zinc-600 dark:bg-zinc-700 transition-colors" />
+        <div class="relative flex items-center pt-0.5 sm:pt-0">
+          <input id="${id}" type="checkbox" class="peer h-4 w-4 sm:h-5 sm:w-5 rounded border-slate-300 text-spc-main focus:ring-spc-main dark:border-zinc-600 dark:bg-zinc-700 transition-colors" />
         </div>
         <div class="min-w-0">
           <div class="text-slate-800 dark:text-slate-200 font-bold leading-snug ${selectedSet.has(txt) ? 'text-spc-main dark:text-blue-300' : ''}">${escapeHtml(txt)}</div>
@@ -1272,7 +1285,7 @@
     // Loading State
     btn.disabled = true;
     btn.classList.add("opacity-80");
-    icon.className = "ph-bold ph-spinner animate-spin text-xl";
+    icon.className = "ph-bold ph-spinner animate-spin text-lg sm:text-xl";
 
     const steps = [
       "現場の声を分析中…",
@@ -1327,14 +1340,14 @@
         
         if (buttonElement && buttonElement.id === 'btnCopyConsult') {
             const originalHtml = buttonElement.innerHTML;
-            buttonElement.innerHTML = '<i class="ph-bold ph-check text-base"></i><span>コピー完了！</span>';
+            buttonElement.innerHTML = '<i class="ph-bold ph-check text-sm sm:text-base"></i><span>コピー完了！</span>';
             buttonElement.classList.add('bg-spc-gold', 'text-white');
-            buttonElement.classList.remove('bg-slate-800', 'hover:bg-black', 'dark:bg-slate-700');
+            buttonElement.classList.remove('bg-slate-800', 'hover:bg-black', 'dark:bg-slate-700', 'dark:hover:bg-slate-600');
             
             setTimeout(() => {
                 buttonElement.innerHTML = originalHtml;
                 buttonElement.classList.remove('bg-spc-gold', 'text-white');
-                buttonElement.classList.add('bg-slate-800', 'hover:bg-black', 'dark:bg-slate-700');
+                buttonElement.classList.add('bg-slate-800', 'hover:bg-black', 'dark:bg-slate-700', 'dark:hover:bg-slate-600');
             }, 2000);
         } else {
             showToast("コピーしました");
