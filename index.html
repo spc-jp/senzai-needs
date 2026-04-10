@@ -343,47 +343,54 @@
             </button>
         </div>
 
-        <div class="space-y-5 sm:space-y-6">
-            <div>
-                <h4 class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 mb-1 sm:mb-2">潜在ニーズを「的（マト）」に変える</h4>
-                <p class="text-[11px] sm:text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                    「何が課題かわからない」という違和感こそが、実は最大のヒントです。<br>
-                    このアプリは、現場のモヤモヤを言語化し、AI/DX活用の焦点を絞り込みます。
+        <div class="space-y-6">
+            <!-- 目的 -->
+            <div class="mb-6">
+                <h4 class="text-xs sm:text-sm font-bold text-spc-main dark:text-blue-300 mb-2 flex items-center gap-2">
+                    <i class="ph-fill ph-target text-spc-gold text-lg"></i>目的
+                </h4>
+                <p class="text-[11px] sm:text-sm leading-relaxed text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-zinc-800/50 p-4 rounded-xl border border-slate-100 dark:border-zinc-700">
+                    「何から手をつけていいかわからない」といった現場のモヤモヤ（潜在ニーズ）を言葉にし、解決に向けた「次の一歩」を明確にすることです。
                 </p>
             </div>
             
-            <div class="bg-slate-50 dark:bg-zinc-800/50 p-4 sm:p-5 rounded-2xl">
-                <h4 class="text-xs sm:text-sm font-bold text-spc-main dark:text-blue-300 mb-3 sm:mb-4">気づきの4ステップ</h4>
-                <ul class="space-y-3 sm:space-y-4">
-                    <li class="flex gap-2.5 sm:gap-3">
-                        <span class="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-spc-gold text-[10px] sm:text-xs font-bold text-white shadow-sm">1</span>
-                        <div class="text-[11px] sm:text-xs leading-relaxed text-slate-600 dark:text-slate-400 pt-0.5">
-                            <span class="font-bold text-slate-800 dark:text-slate-200">違和感を置く</span><br>
-                            「忙しい」「なんとなく不安」など、まだ言葉にならない感覚を入力。
-                        </div>
-                    </li>
-                    <li class="flex gap-2.5 sm:gap-3">
-                        <span class="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-spc-gold text-[10px] sm:text-xs font-bold text-white shadow-sm">2</span>
-                        <div class="text-[11px] sm:text-xs leading-relaxed text-slate-600 dark:text-slate-400 pt-0.5">
-                            <span class="font-bold text-slate-800 dark:text-slate-200">兆候を選ぶ</span><br>
-                            「現場あるある」から選ぶことで、見えない課題の輪郭が浮かび上がります。
-                        </div>
-                    </li>
-                    <li class="flex gap-2.5 sm:gap-3">
-                        <span class="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-spc-gold text-[10px] sm:text-xs font-bold text-white shadow-sm">3</span>
-                        <div class="text-[11px] sm:text-xs leading-relaxed text-slate-600 dark:text-slate-400 pt-0.5">
-                            <span class="font-bold text-slate-800 dark:text-slate-200">構造化する</span><br>
-                            AIが分析し、「真の課題」と「解決への道筋」を構造化して出力します。
-                        </div>
-                    </li>
-                    <li class="flex gap-2.5 sm:gap-3">
-                        <span class="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-spc-gold text-[10px] sm:text-xs font-bold text-white shadow-sm">4</span>
-                        <div class="text-[11px] sm:text-xs leading-relaxed text-slate-600 dark:text-slate-400 pt-0.5">
-                            <span class="font-bold text-slate-800 dark:text-slate-200">次の一歩へ</span><br>
-                            出力された共通言語をたたき台に、解決策（自社専用版）を相談できます。
-                        </div>
-                    </li>
-                </ul>
+            <!-- 使い方 -->
+            <div>
+                <h4 class="text-xs sm:text-sm font-bold text-spc-main dark:text-blue-300 mb-3 sm:mb-4 flex items-center gap-2">
+                    <i class="ph-fill ph-list-numbers text-spc-gold text-lg"></i>使い方（4ステップ）
+                </h4>
+                <div class="bg-slate-50 dark:bg-zinc-800/50 p-4 sm:p-5 rounded-2xl border border-slate-100 dark:border-zinc-700">
+                    <ul class="space-y-3 sm:space-y-4">
+                        <li class="flex gap-2.5 sm:gap-3">
+                            <span class="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-spc-gold text-[10px] sm:text-xs font-bold text-white shadow-sm">1</span>
+                            <div class="text-[11px] sm:text-xs leading-relaxed text-slate-600 dark:text-slate-400 pt-0.5">
+                                <span class="font-bold text-slate-800 dark:text-slate-200">テーマを選ぶ・入力する</span><br>
+                                今の悩みや違和感を、ヒントから選ぶか直接入力します。
+                            </div>
+                        </li>
+                        <li class="flex gap-2.5 sm:gap-3">
+                            <span class="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-spc-gold text-[10px] sm:text-xs font-bold text-white shadow-sm">2</span>
+                            <div class="text-[11px] sm:text-xs leading-relaxed text-slate-600 dark:text-slate-400 pt-0.5">
+                                <span class="font-bold text-slate-800 dark:text-slate-200">当てはまる状態をチェック</span><br>
+                                業種別の「現場あるある」から、現状に近いものを選びます（最大10個）。
+                            </div>
+                        </li>
+                        <li class="flex gap-2.5 sm:gap-3">
+                            <span class="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-spc-gold text-[10px] sm:text-xs font-bold text-white shadow-sm">3</span>
+                            <div class="text-[11px] sm:text-xs leading-relaxed text-slate-600 dark:text-slate-400 pt-0.5">
+                                <span class="font-bold text-slate-800 dark:text-slate-200">まとめて出力する</span><br>
+                                ボタンを押すと、AIが自動で「本当の原因」と「最初の一手」を整理します。
+                            </div>
+                        </li>
+                        <li class="flex gap-2.5 sm:gap-3">
+                            <span class="flex h-5 w-5 sm:h-6 sm:w-6 shrink-0 items-center justify-center rounded-full bg-spc-gold text-[10px] sm:text-xs font-bold text-white shadow-sm">4</span>
+                            <div class="text-[11px] sm:text-xs leading-relaxed text-slate-600 dark:text-slate-400 pt-0.5">
+                                <span class="font-bold text-slate-800 dark:text-slate-200">出力結果を活用する</span><br>
+                                テキストをコピーして社内で共有したり、具体的な解決策の相談に使えます。
+                            </div>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
